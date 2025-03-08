@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hệ thống quản lý</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 250px;
+        background-color: #343a40;
+        padding: 1rem;
+        color: white;
+        overflow-y: auto;
+      }
+
+      .sidebar-header {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.5rem 1rem;
+        margin: 0.2rem 0;
+        border-radius: 0.25rem;
+        transition: all 0.3s;
+      }
+
+      .nav-link:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-link.active {
+        color: white;
+        background-color: #007bff;
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 2rem;
+        height: 100vh;
+      }
+
+      .content-frame {
+        width: 100%;
+        height: calc(100vh - 4rem);
+        border: none;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 1rem;
+      }
+
+      .user-name {
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .user-role {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h4 class="mb-0">Quản lý cửa hàng</h4>
+      </div>
+      <div class="user-info">
+        <img
+          src="https://via.placeholder.com/40"
+          alt="User Avatar"
+          class="user-avatar"
+          id="userAvatar"
+        />
+        <div>
+          <p class="user-name" id="userName">Loading...</p>
+          <p class="user-role" id="userRole">Loading...</p>
+        </div>
+      </div>
+      <nav class="nav flex-column">
+        <a
+          href="product-management.html"
+          class="nav-link"
+          target="contentFrame"
+          onclick="setActiveLink(this)"
+        >
+          <i class="fas fa-box me-2"></i>Quản lý sản phẩm
+        </a>
+        <a
+          href="employee-management.html"
+          class="nav-link"
+          target="contentFrame"
+          onclick="setActiveLink(this)"
+        >
+          <i class="fas fa-users me-2"></i>Quản lý nhân viên
+        </a>
+        <a
+          href="customer-management.html"
+          class="nav-link"
+          target="contentFrame"
+          onclick="setActiveLink(this)"
+        >
+          <i class="fas fa-users me-2"></i>Quản lý Khách hàng
+        </a>
+        <a
+          href="order-management.html"
+          class="nav-link"
+          target="contentFrame"
+          onclick="setActiveLink(this)"
+        >
+          <i class="fas fa-users me-2"></i>Quản lý Hóa Đơn
+        </a>
+        <a
+          href="voucher-management.html"
+          class="nav-link"
+          target="contentFrame"
+          onclick="setActiveLink(this)"
+        >
+          <i class="fas fa-users me-2"></i>Quản lý Voucher
+        </a>
+        <a href="#" class="nav-link" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <iframe
+        name="contentFrame"
+        class="content-frame"
+        src="product-management.html"
+      ></iframe>
+    </div>
+
+    <!-- Bootstrap 5 JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        checkAuth();
+        loadUserInfo();
+        // Set trang sản phẩm làm trang mặc định active
+        setActiveLink($('.nav-link[href="product-management.html"]'));
+      });
+
+      function checkAuth() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "../login.html";
+          return;
+        }
+      }
+
+      function loadUserInfo() {
+        const userName = localStorage.getItem("userName");
+        const userRole = localStorage.getItem("userRole");
+        const userAvatar = localStorage.getItem("userAvatar");
+
+        if (userName) $("#userName").text(userName);
+        if (userRole) $("#userRole").text(userRole);
+        if (userAvatar) $("#userAvatar").attr("src", userAvatar);
+      }
+
+      function setActiveLink(element) {
+        // Xóa active class từ tất cả các link
+        $(".nav-link").removeClass("active");
+        // Thêm active class vào link được click
+        $(element).addClass("active");
+      }
+
+      function logout() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+          localStorage.clear();
+          window.location.href = "../login.html";
+        }
+      }
+
+      // Kiểm tra token định kỳ
+      setInterval(checkAuth, 5000);
+    </script>
+  </body>
+</html>

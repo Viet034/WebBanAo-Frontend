@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý nhân viên</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Cloudinary Upload Widget -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <!-- Pagination JS -->
+    <script src="js/pagination.js"></script>
+    <!-- Employee JS -->
+    <script src="js/employee.js"></script>
+    <style>
+      .employee-table-container {
+        padding: 0 2rem;
+        margin-top: 2rem;
+      }
+
+      .employee-table {
+        width: 100%;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .employee-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .employee-image:hover {
+        transform: scale(1.1);
+      }
+
+      .employee-table th,
+      .employee-table td {
+        padding: 1rem;
+        vertical-align: middle;
+      }
+
+      .employee-table td:nth-child(2) {
+        text-align: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+
+      .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="employee-table-container">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Quản lý nhân viên</h4>
+          <div class="d-flex gap-2">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                id="searchEmployee"
+                placeholder="Tìm kiếm nhân viên..."
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                onclick="searchEmployees()"
+              >
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addEmployeeModal"
+            >
+              <i class="fas fa-plus"></i> Thêm nhân viên
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped mt-4 employee-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Ảnh</th>
+                <th>Họ tên</th>
+                <th>Mã nhân viên</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Employee rows will be dynamically injected here -->
+            </tbody>
+          </table>
+          <!-- Thêm phân trang -->
+          <div id="employeePaginationContainer">
+            <!-- UI phân trang sẽ được thêm vào đây -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEmployeeModalLabel">
+              Thêm nhân viên mới
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addEmployeeForm">
+              <div class="mb-3">
+                <label for="employeeFullName" class="form-label">Họ tên</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="employeeFullName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="employeeEmail" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="employeeEmail"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="employeePhone" class="form-label"
+                  >Số điện thoại</label
+                >
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="employeePhone"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="employeeAddress" class="form-label">Địa chỉ</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="employeeAddress"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="employeeCountry" class="form-label"
+                  >Thành phố</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="employeeCountry"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="employeeDob" class="form-label">Ngày sinh</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="employeeDob"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="employeeGender" class="form-label">Giới tính</label>
+                <select class="form-control" id="employeeGender" required>
+                  <option value="Male">Nam</option>
+                  <option value="Female">Nữ</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ảnh nhân viên</label>
+                <div class="d-flex align-items-center">
+                  <button
+                    type="button"
+                    id="employee_upload_widget"
+                    class="btn btn-secondary"
+                  >
+                    <i class="fas fa-cloud-upload-alt"></i> Chọn ảnh
+                  </button>
+                  <img
+                    id="employee-preview-image"
+                    src=""
+                    alt=""
+                    class="ms-3"
+                    style="max-height: 100px; display: none"
+                  />
+                </div>
+                <input type="hidden" id="employeeImageUrl" />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Thêm nhân viên
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div class="modal fade" id="editEmployeeModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Sửa thông tin nhân viên</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editEmployeeForm">
+              <!-- Các trường ẩn -->
+              <input type="hidden" id="editEmployeeId" />
+              <input type="hidden" id="editEmployeeCode" />
+              <input type="hidden" id="currentPassword" />
+              <input type="hidden" id="editEmployeeAddress" />
+              <input type="hidden" id="editEmployeeCountry" />
+
+              <!-- Các trường có thể sửa -->
+              <div class="mb-3">
+                <label for="editEmployeeFullName" class="form-label"
+                  >Họ tên</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editEmployeeFullName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editEmployeeEmail" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="editEmployeeEmail"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editEmployeePhone" class="form-label"
+                  >Số điện thoại</label
+                >
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="editEmployeePhone"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editEmployeeDob" class="form-label"
+                  >Ngày sinh</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editEmployeeDob"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editEmployeeGender" class="form-label"
+                  >Giới tính</label
+                >
+                <select class="form-control" id="editEmployeeGender" required>
+                  <option value="Male">Nam</option>
+                  <option value="Female">Nữ</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ảnh nhân viên</label>
+                <div class="d-flex align-items-center">
+                  <button
+                    type="button"
+                    id="edit_employee_upload_widget"
+                    class="btn btn-secondary"
+                  >
+                    <i class="fas fa-cloud-upload-alt"></i> Chọn ảnh mới
+                  </button>
+                  <img
+                    id="edit-employee-preview-image"
+                    src=""
+                    alt=""
+                    class="ms-3"
+                    style="max-height: 100px; display: none"
+                  />
+                </div>
+                <input type="hidden" id="editEmployeeImageUrl" />
+              </div>
+              <button type="submit" class="btn btn-primary">Cập nhật</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Details Modal -->
+    <div class="modal fade" id="employeeDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Chi tiết nhân viên</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-4">
+                <img
+                  id="detailEmployeeImage"
+                  src=""
+                  alt="Employee Image"
+                  class="img-fluid rounded mb-3"
+                />
+              </div>
+              <div class="col-md-8">
+                <table class="table">
+                  <tr>
+                    <th>Họ tên:</th>
+                    <td id="detailEmployeeFullName"></td>
+                  </tr>
+                  <tr>
+                    <th>Mã nhân viên:</th>
+                    <td id="detailEmployeeCode"></td>
+                  </tr>
+                  <tr>
+                    <th>Email:</th>
+                    <td id="detailEmployeeEmail"></td>
+                  </tr>
+                  <tr>
+                    <th>Số điện thoại:</th>
+                    <td id="detailEmployeePhone"></td>
+                  </tr>
+                  <tr>
+                    <th>Địa chỉ:</th>
+                    <td id="detailEmployeeAddress"></td>
+                  </tr>
+                  <tr>
+                    <th>Thành phố:</th>
+                    <td id="detailEmployeeCountry"></td>
+                  </tr>
+                  <tr>
+                    <th>Ngày sinh:</th>
+                    <td id="detailEmployeeDob"></td>
+                  </tr>
+                  <tr>
+                    <th>Giới tính:</th>
+                    <td id="detailEmployeeGender"></td>
+                  </tr>
+                  <tr>
+                    <th>Trạng thái:</th>
+                    <td id="detailEmployeeStatus"></td>
+                  </tr>
+                  <tr>
+                    <th>Ngày bắt đầu:</th>
+                    <td id="detailEmployeeStartDate"></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  </body>
+</html>

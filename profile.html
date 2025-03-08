@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông tin cá nhân | Colo Shop</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+
+      .profile-container {
+        max-width: 100%;
+        margin: 0;
+        padding: 2rem;
+        background: white;
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        gap: 2rem;
+        min-height: 100vh;
+      }
+
+      .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+      }
+
+      .profile-menu {
+        width: 350px;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 0;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+      }
+
+      .profile-menu::before {
+        content: "TIENTIEN SHOP";
+        display: block;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #fe4c50;
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+        border-bottom: 2px solid #fe4c50;
+      }
+
+      .profile-menu .nav-link {
+        display: block;
+        padding: 1.2rem 1.8rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .profile-menu .nav-link:hover,
+      .profile-menu .nav-link.active {
+        background-color: #fe4c50;
+        color: white;
+        transform: translateX(10px);
+      }
+
+      .profile-menu .nav-link i {
+        width: 25px;
+        margin-right: 15px;
+        text-align: center;
+      }
+
+      .profile-content {
+        flex: 1;
+        margin-left: 370px;
+        padding: 2rem;
+        max-width: calc(100% - 370px);
+      }
+
+      .btn-primary {
+        background-color: #fe4c50;
+        border-color: #fe4c50;
+      }
+
+      .btn-primary:hover {
+        background-color: #fe2d31;
+        border-color: #fe2d31;
+      }
+
+      .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+      }
+
+      .btn-danger:hover {
+        background-color: #bb2d3b;
+        border-color: #bb2d3b;
+      }
+
+      .btn-outline-secondary {
+        color: #fe4c50;
+        border-color: #fe4c50;
+      }
+
+      .btn-outline-secondary:hover {
+        background-color: #fe4c50;
+        border-color: #fe4c50;
+        color: white;
+      }
+
+      .menu-button {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      #profileForm {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .form-control,
+      .form-select {
+        max-width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        .profile-menu {
+          width: 100%;
+          height: auto;
+          position: relative;
+        }
+
+        .profile-content {
+          margin-left: 0;
+          max-width: 100%;
+          padding: 1rem;
+        }
+
+        #profileForm {
+          max-width: 100%;
+        }
+
+        .profile-container {
+          flex-direction: column;
+        }
+      }
+
+      .voucher-card {
+        border: 2px solid #fe4c50;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        background: white;
+        transition: all 0.3s ease;
+      }
+
+      .voucher-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .voucher-card .discount {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fe4c50;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .voucher-card .conditions {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 1rem 0;
+        text-align: center;
+      }
+
+      .voucher-card .validity {
+        font-size: 0.9rem;
+        color: #666;
+        text-align: center;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+
+      .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="profile-container">
+        <div class="profile-menu">
+          <a href="#" class="nav-link active" id="profileInfoBtn">
+            <i class="fas fa-user"></i> Thông tin cá nhân
+          </a>
+          <a href="#" class="nav-link" id="voucherListBtn">
+            <i class="fas fa-ticket-alt"></i> Voucher đã sở hữu
+          </a>
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-home"></i> Quay lại trang chủ
+          </a>
+          <button
+            onclick="logout()"
+            class="nav-link"
+            style="
+              width: 100%;
+              border: none;
+              background: none;
+              text-align: left;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+          </button>
+        </div>
+
+        <div class="profile-content">
+          <div id="profileInfo">
+            <div class="text-center mb-4">
+              <img
+                id="profileImage"
+                src="https://placehold.co/150x150"
+                alt="Ảnh đại diện"
+                class="profile-picture"
+              />
+              <button id="upload_widget" class="btn btn-secondary mb-3">
+                <i class="fas fa-camera"></i> Thay đổi ảnh
+              </button>
+              <h2>Thông tin cá nhân</h2>
+            </div>
+
+            <form id="profileForm">
+              <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="fullName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" readonly />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="tel" class="form-control" id="phone" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" id="dob" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Giới tính</label>
+                <select class="form-select" id="gender" required>
+                  <option value="Male">Nam</option>
+                  <option value="Female">Nữ</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" id="address" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Thành phố</label>
+                <input type="text" class="form-control" id="city" required />
+              </div>
+
+              <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div id="voucherList" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Voucher đã sở hữu</h2>
+              <button class="btn btn-primary" onclick="showAvailableVouchers()">
+                <i class="fas fa-plus"></i> Thêm Voucher
+              </button>
+            </div>
+
+            <!-- Danh sách voucher đã sở hữu -->
+            <div class="row" id="ownedVouchersList">
+              <!-- Vouchers sẽ được thêm vào đây -->
+            </div>
+
+            <!-- Modal hiển thị voucher có thể lấy -->
+            <div class="modal fade" id="availableVouchersModal" tabindex="-1">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">
+                      Danh sách Voucher có thể sử dụng
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row" id="availableVouchersList">
+                      <!-- Available vouchers will be added here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      var myWidget = cloudinary.createUploadWidget(
+        {
+          cloudName: "dwcih9djc",
+          uploadPreset: "ml_default",
+          sources: ["local", "url", "camera"],
+          multiple: false,
+          clientAllowedFormats: ["jpg", "png", "jpeg", "gif"],
+          cropping: true,
+          croppingAspectRatio: 1,
+        },
+        (error, result) => {
+          if (!error && result && result.event === "success") {
+            const imageUrl = result.info.secure_url;
+            document.getElementById("profileImage").src = imageUrl;
+            updateProfileImage(imageUrl);
+          }
+        }
+      );
+
+      document.getElementById("upload_widget").addEventListener(
+        "click",
+        function () {
+          myWidget.open();
+        },
+        false
+      );
+
+      $(document).ready(function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+        loadUserProfile();
+      });
+
+      function loadUserProfile() {
+        const userId = localStorage.getItem("userId");
+        $.ajax({
+          url: `https://localhost:7060/api/Customer/findId/${userId}`,
+          type: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          success: function (response) {
+            console.log("Thông tin người dùng:", response);
+            $("#fullName").val(response.fullName);
+            $("#email").val(response.email);
+            $("#phone").val(response.phone);
+            $("#dob").val(response.dob.split("T")[0]);
+            $("#gender").val(response.gender);
+            $("#address").val(response.address);
+            $("#city").val(response.city);
+            if (response.image) {
+              $("#profileImage").attr("src", response.image);
+            }
+
+            $("#profileForm").data("code", response.code);
+            $("#profileForm").data("refreshToken", response.refreshToken);
+            $("#profileForm").data(
+              "refreshTokenExpiryTime",
+              response.refreshTokenExpiryTime
+            );
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi tải thông tin:", xhr);
+            alert("Không thể tải thông tin người dùng!");
+          },
+        });
+      }
+
+      function updateProfileImage(imageUrl) {
+        const userId = localStorage.getItem("userId");
+        const currentData = {
+          id: parseInt(userId),
+          code: $("#profileForm").data("code"),
+          fullName: $("#fullName").val(),
+          email: $("#email").val(),
+          phone: $("#phone").val(),
+          password: "********",
+          dob: $("#dob").val() + "T00:00:00",
+          gender: $("#gender").val(),
+          address: $("#address").val(),
+          city: $("#city").val(),
+          status: "Active",
+          image: imageUrl,
+          refreshToken: $("#profileForm").data("refreshToken"),
+          refreshTokenExpiryTime: $("#profileForm").data(
+            "refreshTokenExpiryTime"
+          ),
+        };
+
+        $.ajax({
+          url: `https://localhost:7060/api/Customer/Update/${userId}`,
+          type: "PUT",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify(currentData),
+          success: function (response) {
+            console.log("Cập nhật ảnh thành công:", response);
+            alert("Cập nhật ảnh đại diện thành công!");
+          },
+          error: function (xhr) {
+            console.error("Chi tiết lỗi:", xhr.responseText);
+            alert("Không thể cập nhật ảnh đại diện!");
+          },
+        });
+      }
+
+      $("#profileForm").submit(function (e) {
+        e.preventDefault();
+
+        const userId = localStorage.getItem("userId");
+        const updateData = {
+          id: parseInt(userId),
+          code: $("#profileForm").data("code"),
+          fullName: $("#fullName").val(),
+          email: $("#email").val(),
+          phone: $("#phone").val(),
+          password: "********",
+          dob: $("#dob").val() + "T00:00:00",
+          gender: $("#gender").val(),
+          address: $("#address").val(),
+          city: $("#city").val(),
+          status: "Active",
+          image: $("#profileImage").attr("src") || "",
+          refreshToken: $("#profileForm").data("refreshToken"),
+          refreshTokenExpiryTime: $("#profileForm").data(
+            "refreshTokenExpiryTime"
+          ),
+        };
+
+        console.log("Dữ liệu cập nhật:", updateData);
+
+        $.ajax({
+          url: `https://localhost:7060/api/Customer/Update/${userId}`,
+          type: "PUT",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify(updateData),
+          success: function (response) {
+            console.log("Cập nhật thành công:", response);
+            alert("Cập nhật thông tin thành công!");
+            loadUserProfile();
+            localStorage.setItem("userName", updateData.fullName);
+          },
+          error: function (xhr) {
+            console.error("Chi tiết lỗi:", xhr.responseText);
+            alert("Không thể cập nhật thông tin! Vui lòng thử lại.");
+          },
+        });
+      });
+
+      function logout() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("tokenExpiration");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userRole");
+          localStorage.removeItem("userName");
+          localStorage.removeItem("userEmail");
+
+          window.location.href = "login.html";
+        }
+      }
+
+      document
+        .getElementById("profileInfoBtn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          document.getElementById("profileInfo").style.display = "block";
+          document.getElementById("voucherList").style.display = "none";
+          document
+            .querySelectorAll(".nav-link")
+            .forEach((link) => link.classList.remove("active"));
+          this.classList.add("active");
+        });
+
+      document
+        .getElementById("voucherListBtn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          document.getElementById("profileInfo").style.display = "none";
+          document.getElementById("voucherList").style.display = "block";
+          document
+            .querySelectorAll(".nav-link")
+            .forEach((link) => link.classList.remove("active"));
+          this.classList.add("active");
+          loadOwnedVouchers(); // Tải danh sách voucher khi chuyển tab
+        });
+
+      // Hàm lấy danh sách voucher đã sở hữu
+      function loadOwnedVouchers() {
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+
+        $.ajax({
+          url: `https://localhost:7060/api/CustomerVoucher/customer/${userId}`,
+          type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          success: function (response) {
+            console.log("Voucher data:", response);
+            renderOwnedVouchers(response);
+          },
+          error: function (xhr, status, error) {
+            console.error("Chi tiết lỗi:", {
+              status: xhr.status,
+              error: error,
+              response: xhr.responseText,
+            });
+
+            const container = document.getElementById("ownedVouchersList");
+            container.innerHTML = `
+              <div class="col-12">
+                <div class="alert alert-info">
+                  Bạn chưa có voucher nào. Hãy nhấn nút "Thêm Voucher" để lấy voucher mới!
+                </div>
+              </div>
+            `;
+          },
+        });
+      }
+
+      // Hàm hiển thị voucher đã sở hữu
+      function renderOwnedVouchers(vouchers) {
+        const container = document.getElementById("ownedVouchersList");
+        container.innerHTML = "";
+
+        if (!vouchers || vouchers.length === 0) {
+          container.innerHTML = `
+            <div class="col-12">
+              <div class="alert alert-info">
+                Bạn chưa có voucher nào. Hãy nhấn nút "Thêm Voucher" để lấy voucher mới!
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        vouchers.forEach((voucherData) => {
+          // Kiểm tra xem voucher có nằm trong property voucher không
+          const voucher = voucherData.voucher || voucherData;
+          console.log("Voucher data in loop:", voucher); // Log để kiểm tra dữ liệu
+          const card = createVoucherCard(voucher, false);
+          container.appendChild(card);
+        });
+      }
+
+      // Hàm tạo card voucher
+      function createVoucherCard(voucher, isAvailable) {
+        const div = document.createElement("div");
+        div.className = "col-md-6 col-lg-4";
+
+        const statusClass =
+          {
+            Active: "bg-success",
+            Expired: "bg-danger",
+            Used: "bg-warning",
+          }[voucher.status] || "bg-secondary";
+
+        // Lấy thông tin từ voucher object
+        const discountValue = voucher.voucher
+          ? voucher.voucher.discountValue
+          : voucher.discountValue;
+        const minimumOrderValue = voucher.voucher
+          ? voucher.voucher.minimumOrderValue
+          : voucher.minimumOrderValue;
+        const maxDiscount = voucher.voucher
+          ? voucher.voucher.maxDiscount
+          : voucher.maxDiscount;
+        const endDate = voucher.voucher
+          ? voucher.voucher.endDate
+          : voucher.endDate;
+
+        div.innerHTML = `
+          <div class="voucher-card">
+            <span class="badge ${statusClass} status">${
+          voucher.status || "Không xác định"
+        }</span>
+            <div class="discount">Giảm ${discountValue}%</div>
+            <div class="validity">
+              HSD: ${new Date(endDate).toLocaleDateString()}
+            </div>
+            <div class="conditions">
+              Đơn tối thiểu: ${minimumOrderValue.toLocaleString()}đ<br>
+              Giảm tối đa: ${maxDiscount.toLocaleString()}đ
+            </div>
+            ${
+              isAvailable
+                ? `<button class="btn btn-primary btn-sm mt-2 w-100" onclick="getVoucher(${voucher.id})">
+                <i class="fas fa-plus"></i> Lấy voucher
+              </button>`
+                : `<button class="btn btn-success btn-sm mt-2 w-100" onclick="useVoucher(${voucher.id})">
+                <i class="fas fa-check"></i> Sử dụng ngay
+              </button>`
+            }
+          </div>
+        `;
+
+        return div;
+      }
+
+      // Hàm lấy voucher
+      function getVoucher(voucherId) {
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+
+        $.ajax({
+          url: `https://localhost:7060/api/CustomerVoucher/add`,
+          type: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify({
+            customerId: parseInt(userId),
+            voucherId: parseInt(voucherId),
+          }),
+          success: function (response) {
+            alert("Lấy voucher thành công!");
+            $("#availableVouchersModal").modal("hide");
+            loadOwnedVouchers();
+          },
+          error: function (xhr) {
+            console.error("Chi tiết lỗi khi lấy voucher:", xhr.responseText);
+            alert(
+              "Không thể lấy voucher! Có thể bạn đã có voucher này hoặc voucher đã hết hạn."
+            );
+          },
+        });
+      }
+
+      // Thêm hàm sử dụng voucher
+      function useVoucher(voucherId) {
+        // Chuyển người dùng đến trang sản phẩm
+        window.location.href = `products.html?voucher=${voucherId}`;
+      }
+
+      // Hàm hiển thị modal voucher có thể lấy
+      function showAvailableVouchers() {
+        const token = localStorage.getItem("token");
+
+        $.ajax({
+          url: "https://localhost:7060/api/Voucher/GetAll",
+          type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          success: function (response) {
+            console.log("Available vouchers:", response);
+            renderAvailableVouchers(response);
+            $("#availableVouchersModal").modal("show");
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi lấy danh sách voucher khả dụng:", xhr);
+            alert("Không thể lấy danh sách voucher khả dụng!");
+          },
+        });
+      }
+
+      // Hàm hiển thị danh sách voucher có thể lấy
+      function renderAvailableVouchers(vouchers) {
+        const container = document.getElementById("availableVouchersList");
+        container.innerHTML = "";
+
+        if (!vouchers || vouchers.length === 0) {
+          container.innerHTML = `
+            <div class="col-12">
+              <div class="alert alert-info">
+                Hiện tại không có voucher nào có thể sử dụng.
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        // Thêm log để kiểm tra dữ liệu voucher
+        console.log("Vouchers data:", vouchers);
+
+        // Chỉ hiển thị voucher có trạng thái Active
+        const activeVouchers = vouchers.filter((v) => v.status === "Active");
+
+        if (activeVouchers.length === 0) {
+          container.innerHTML = `
+            <div class="col-12">
+              <div class="alert alert-info">
+                Hiện tại không có voucher nào có thể sử dụng.
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        activeVouchers.forEach((voucher) => {
+          // Thêm log để kiểm tra từng voucher
+          console.log("Processing voucher:", voucher);
+          const card = createVoucherCard(voucher, true);
+          container.appendChild(card);
+        });
+      }
+    </script>
+  </body>
+</html>

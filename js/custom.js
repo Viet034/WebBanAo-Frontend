@@ -435,4 +435,184 @@ jQuery(document).ready(function($)
     		}
     	}
     }
+
+    /* 
+
+    Search
+
+    */
+
+    $(document).ready(function() {
+        // Toggle search form
+        $('.fa-search').parent().click(function(e) {
+            e.preventDefault();
+            $('.search-form').toggleClass('active');
+        });
+
+        // Close search form when clicking outside
+        $(document).click(function(e) {
+            if (!$(e.target).closest('.search-container').length) {
+                $('.search-form').removeClass('active');
+            }
+        });
+
+        // Handle search
+        $('#searchForm').submit(function(e) {
+            e.preventDefault();
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            
+            // Gọi API tìm kiếm với searchTerm
+            $.ajax({
+                url: `${API_URL}/api/products/search?keyword=${searchTerm}`,
+                method: 'GET',
+                success: function(response) {
+                    displaySearchResults(response);
+                },
+                error: function(error) {
+                    console.error("Lỗi khi tìm kiếm:", error);
+                    displaySearchResults([]);
+                }
+            });
+        });
+
+        // Hiển thị kết quả tìm kiếm
+        function displaySearchResults(products) {
+            // Xóa kết quả cũ nếu có
+            $('.search-results').remove();
+
+            // Tạo container cho kết quả
+            const resultsContainer = $('<div class="search-results"></div>');
+
+            if (!products || products.length === 0) {
+                resultsContainer.append('<div class="search-result-item">Không tìm thấy sản phẩm</div>');
+            } else {
+                products.forEach(product => {
+                    const productElement = `
+                        <div class="search-result-item" onclick="window.location.href='single.html?id=${product.id}'">
+                            <img src="${product.imageUrl || 'images/product_placeholder.jpg'}" alt="${product.name}">
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-price">${formatPrice(product.price)}</div>
+                            </div>
+                        </div>
+                    `;
+                    resultsContainer.append(productElement);
+                });
+            }
+
+            // Thêm kết quả vào form tìm kiếm
+            $('.search-form').append(resultsContainer);
+        }
+
+        // Format giá tiền
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price);
+        }
+
+        // Xử lý tìm kiếm realtime
+        let searchTimeout;
+        $('#searchInput').on('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = $(this).val().toLowerCase();
+            
+            // Đợi người dùng ngừng gõ 300ms mới tìm kiếm
+            searchTimeout = setTimeout(() => {
+                if (searchTerm.length >= 2) {
+                    $('#searchForm').submit();
+                } else {
+                    $('.search-results').remove();
+                }
+            }, 300);
+        });
+    });
+
+    /* 
+
+    Language Translation
+
+    */
+
+    $(document).ready(function() {
+        // Khởi tạo i18next
+        i18next.init({
+            lng: 'en', // ngôn ngữ mặc định
+            resources: translations,
+            fallbackLng: 'en',
+        }).then(function(t) {
+            // Cập nhật toàn bộ text trên trang
+            updateContent();
+        });
+
+        // Xử lý chuyển đổi ngôn ngữ
+        $('.language_selection li a').click(function(e) {
+            e.preventDefault();
+            const lang = $(this).data('lang');
+            changeLanguage(lang);
+        });
+
+        // Hàm thay đổi ngôn ngữ
+        function changeLanguage(lang) {
+            i18next.changeLanguage(lang, (err, t) => {
+                if (err) return console.log('Lỗi khi chuyển ngôn ngữ:', err);
+                
+                // Cập nhật text hiển thị ngôn ngữ hiện tại
+                $('#current-lang').text(lang === 'en' ? 'English' : 'Tiếng Việt');
+                
+                // Cập nhật nội dung
+                updateContent();
+                
+                // Lưu ngôn ngữ vào localStorage
+                localStorage.setItem('preferred_language', lang);
+            });
+        }
+
+        // Hàm cập nhật nội dung
+        function updateContent() {
+            // Header
+            $('.top_nav_left').text(i18next.t('free_shipping'));
+            $('.account > a').text(i18next.t('my_account'));
+            
+            // Navigation
+            $('.navbar_menu li').each(function() {
+                const key = $(this).find('a').text().toLowerCase();
+                $(this).find('a').text(i18next.t(key));
+            });
+            
+            // Search
+            $('#searchInput').attr('placeholder', i18next.t('search_placeholder'));
+            
+            // Product buttons
+            $('.add_to_cart_button a').text(i18next.t('add_to_cart'));
+            
+            // Newsletter
+            $('.newsletter_text h4').text(i18next.t('newsletter'));
+            $('.newsletter_text p').text(i18next.t('newsletter_desc'));
+            $('#newsletter_email').attr('placeholder', i18next.t('your_email'));
+            $('.newsletter_submit_btn').text(i18next.t('subscribe'));
+        }
+
+        // Tải ngôn ngữ đã lưu từ localStorage
+        const savedLanguage = localStorage.getItem('preferred_language');
+        if (savedLanguage) {
+            changeLanguage(savedLanguage);
+        }
+
+        // Cập nhật hàm formatPrice để sử dụng đúng định dạng tiền tệ theo ngôn ngữ
+        function formatPrice(price) {
+            const currency = i18next.t('currency');
+            const options = {
+                style: 'currency',
+                currency: currency === 'VND' ? 'VND' : 'USD'
+            };
+            
+            if (currency === 'VND') {
+                price = price * 23000; // Giả sử tỷ giá 1 USD = 23000 VND
+            }
+            
+            return new Intl.NumberFormat(i18next.language === 'vi' ? 'vi-VN' : 'en-US', options).format(price);
+        }
+    });
 });

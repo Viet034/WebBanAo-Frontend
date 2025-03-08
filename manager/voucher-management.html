@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Voucher</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Pagination JS -->
+    <script src="js/pagination.js"></script>
+    <!-- Voucher JS -->
+    <script src="js/voucher.js"></script>
+    <style>
+      .voucher-table-container {
+        padding: 0 2rem;
+        margin-top: 2rem;
+      }
+
+      .voucher-table {
+        width: 100%;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .voucher-table th,
+      .voucher-table td {
+        padding: 1rem;
+        vertical-align: middle;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+
+      .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="voucher-table-container">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Quản lý Voucher</h4>
+          <div class="d-flex gap-2">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                id="searchVoucher"
+                placeholder="Tìm kiếm voucher..."
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                onclick="searchVouchers()"
+              >
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addVoucherModal"
+            >
+              <i class="fas fa-plus"></i> Thêm Voucher
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped mt-4 voucher-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Mã Voucher</th>
+                <th>Tên Voucher</th>
+                <th>Giá trị</th>
+                <th>Đơn hàng tối thiểu/Giảm giá tối đa</th>
+
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Voucher rows will be dynamically injected here -->
+            </tbody>
+          </table>
+          <!-- Phân trang -->
+          <div id="voucherPaginationContainer">
+            <!-- UI phân trang sẽ được thêm vào đây -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Voucher Modal -->
+    <div class="modal fade" id="addVoucherModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Voucher mới</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addVoucherForm">
+              <div class="mb-3">
+                <label for="voucherCode" class="form-label">Mã Voucher</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="voucherCode"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherName" class="form-label">Tên Voucher</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="voucherName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherDescription" class="form-label">Mô tả</label>
+                <textarea
+                  class="form-control"
+                  id="voucherDescription"
+                  required
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="voucherQuantity" class="form-label">Số lượng</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="voucherQuantity"
+                  required
+                  min="0"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherDiscountValue" class="form-label"
+                  >Giá trị giảm (%)</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="voucherDiscountValue"
+                  required
+                  min="0"
+                  max="100"
+                  step="1"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherMinimumOrderValue" class="form-label"
+                  >Giá trị đơn hàng tối thiểu</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="voucherMinimumOrderValue"
+                  required
+                  min="0"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherMaxDiscount" class="form-label"
+                  >Giảm giá tối đa</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="voucherMaxDiscount"
+                  required
+                  min="0"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherStartDate" class="form-label"
+                  >Ngày bắt đầu</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="voucherStartDate"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="voucherEndDate" class="form-label"
+                  >Ngày kết thúc</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="voucherEndDate"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Thêm Voucher
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Voucher Modal -->
+    <div class="modal fade" id="editVoucherModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Sửa thông tin Voucher</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editVoucherForm">
+              <input type="hidden" id="editVoucherId" />
+              <div class="mb-3">
+                <label for="editVoucherCode" class="form-label"
+                  >Mã Voucher</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editVoucherCode"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherName" class="form-label"
+                  >Tên Voucher</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editVoucherName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherDescription" class="form-label"
+                  >Mô tả</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editVoucherDescription"
+                  required
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherQuantity" class="form-label"
+                  >Số lượng</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editVoucherQuantity"
+                  required
+                  min="0"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherDiscountValue" class="form-label"
+                  >Giá trị giảm (%)</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editVoucherDiscountValue"
+                  required
+                  min="0"
+                  max="100"
+                  step="1"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherMinimumOrderValue" class="form-label"
+                  >Giá trị đơn hàng tối thiểu</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editVoucherMinimumOrderValue"
+                  required
+                  min="0"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherMaxDiscount" class="form-label"
+                  >Giảm giá tối đa</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editVoucherMaxDiscount"
+                  required
+                  min="0"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherStartDate" class="form-label"
+                  >Ngày bắt đầu</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="editVoucherStartDate"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="editVoucherEndDate" class="form-label"
+                  >Ngày kết thúc</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="editVoucherEndDate"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">Cập nhật</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  </body>
+</html>

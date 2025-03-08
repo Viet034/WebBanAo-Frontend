@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="plugins/jquery-ui-1.12.1.custom/jquery-ui.css"
+    />
+  </head>
+  <body>
+    <img id="new-anh" src="" alt="" />
+    <button id="upload_widget" class="cloudinary-button">Tải lên ảnh</button>
+
+    <script type="text/javascript">
+      var sanPhamChiTiet = {
+        ten: "demo ten",
+        gia: "1234",
+        anh: "",
+      };
+
+      var myWidget = cloudinary.createUploadWidget(
+        {
+          cloudName: "dwcih9djc", // Thay thế bằng Cloud Name của bạn
+          uploadPreset: "ml_default", // Thay thế bằng upload preset của bạn
+          sources: ["local", "url", "camera"], // Các nguồn upload ảnh
+          multiple: false, // Không cho phép tải nhiều ảnh
+          clientAllowedFormats: ["jpg", "png", "jpeg", "gif"], // Các định dạng ảnh được phép
+          cropping: false, // Tắt chức năng cắt ảnh
+        },
+        (error, result) => {
+          if (!error && result && result.event === "success") {
+            var imageUrl = result.info.secure_url;
+            sanPhamChiTiet.anh = result.info.secure_url;
+            console.log("đối tượng để gửi sang backend: ", sanPhamChiTiet);
+            console.log("response từ cloudinary: ", result);
+            var img = result.info.secure_url;
+            document.getElementById("new-anh").src = imageUrl;
+            console.log("Ảnh đã được tải lên: " + imageUrl);
+
+            // Kiểm tra xem có endpoint /save_image_url không
+            if (typeof saveImageUrl !== "undefined") {
+              $.ajax({
+                url: "/save_image_url",
+                type: "POST",
+                data: {
+                  image_url: imageUrl,
+                },
+                success: function (response) {
+                  alert("URL của ảnh đã được lưu thành công!");
+                  console.log(response);
+                },
+                error: function (xhr, status, error) {
+                  console.error("Lỗi khi lưu URL ảnh:", error);
+                  alert(
+                    "Lỗi khi lưu URL ảnh. Vui lòng kiểm tra console để biết thêm chi tiết."
+                  );
+                },
+              });
+            }
+          } else if (error) {
+            console.error("Lỗi Cloudinary:", error);
+            alert(
+              "Có lỗi xảy ra khi tải lên ảnh. Vui lòng kiểm tra console để biết thêm chi tiết."
+            );
+          }
+        }
+      );
+
+      document.getElementById("upload_widget").addEventListener(
+        "click",
+        function () {
+          myWidget.open();
+        },
+        false
+      );
+    </script>
+  </body>
+</html>
