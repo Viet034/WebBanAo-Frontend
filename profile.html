@@ -219,6 +219,61 @@
         background-color: #218838;
         border-color: #1e7e34;
       }
+
+      /* Style cho bảng đơn hàng */
+      .table {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .table th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+      }
+
+      .table td, .table th {
+        padding: 1rem;
+        vertical-align: middle;
+      }
+
+      /* Style cho badge trạng thái */
+      .badge {
+        padding: 0.5em 1em;
+        font-size: 0.875em;
+        border-radius: 20px;
+      }
+
+      /* Responsive cho bảng */
+      @media (max-width: 768px) {
+        .table-responsive {
+          border: 0;
+        }
+        
+        .table thead {
+          display: none;
+        }
+        
+        .table tr {
+          margin-bottom: 1rem;
+          display: block;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+        }
+        
+        .table td {
+          display: block;
+          text-align: right;
+          padding: 0.5rem 1rem;
+          border: none;
+        }
+        
+        .table td::before {
+          content: attr(data-label);
+          float: left;
+          font-weight: bold;
+        }
+      }
     </style>
   </head>
   <body>
@@ -227,6 +282,9 @@
         <div class="profile-menu">
           <a href="#" class="nav-link active" id="profileInfoBtn">
             <i class="fas fa-user"></i> Thông tin cá nhân
+          </a>
+          <a href="#" class="nav-link" id="orderListBtn">
+            <i class="fas fa-shopping-bag"></i> Đơn hàng
           </a>
           <a href="#" class="nav-link" id="voucherListBtn">
             <i class="fas fa-ticket-alt"></i> Voucher đã sở hữu
@@ -308,6 +366,28 @@
                 </button>
               </div>
             </form>
+          </div>
+
+          <div id="orderList" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2>Danh sách đơn hàng</h2>
+            </div>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Chi tiết</th>
+                  </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                  <!-- Orders will be loaded here -->
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div id="voucherList" style="display: none">
@@ -530,10 +610,25 @@
           e.preventDefault();
           document.getElementById("profileInfo").style.display = "block";
           document.getElementById("voucherList").style.display = "none";
+          document.getElementById("orderList").style.display = "none";
           document
             .querySelectorAll(".nav-link")
             .forEach((link) => link.classList.remove("active"));
           this.classList.add("active");
+        });
+
+      document
+        .getElementById("orderListBtn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          document.getElementById("profileInfo").style.display = "none";
+          document.getElementById("voucherList").style.display = "none";
+          document.getElementById("orderList").style.display = "block";
+          document
+            .querySelectorAll(".nav-link")
+            .forEach((link) => link.classList.remove("active"));
+          this.classList.add("active");
+          loadOrders(); // Tải danh sách đơn hàng
         });
 
       document
@@ -759,6 +854,81 @@
           const card = createVoucherCard(voucher, true);
           container.appendChild(card);
         });
+      }
+
+      // Hàm tải danh sách đơn hàng
+      function loadOrders() {
+        const userId = localStorage.getItem("userId");
+        $.ajax({
+          url: `https://localhost:7060/api/Order/customerId/${userId}`,
+          type: "GET",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          success: function (orders) {
+            const tableBody = $("#orderTableBody");
+            tableBody.empty();
+
+            orders.forEach(order => {
+              const statusClass = getStatusClass(order.status);
+              const statusText = getStatusText(order.status);
+              
+              tableBody.append(`
+                <tr>
+                  <td>${order.code}</td>
+                  <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                  <td>${order.totalAmount.toLocaleString()}đ</td>
+                  <td>
+                    <span class="badge ${statusClass}">${statusText}</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-info" onclick="showOrderDetail('${order.id}')">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              `);
+            });
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi tải đơn hàng:", xhr);
+            $("#orderTableBody").html(`
+              <tr>
+                <td colspan="5" class="text-center">
+                  Không có đơn hàng nào.
+                </td>
+              </tr>
+            `);
+          }
+        });
+      }
+
+      // Hàm lấy class cho trạng thái
+      function getStatusClass(status) {
+        const statusClasses = {
+          'Pending': 'bg-warning',
+          'Processing': 'bg-info',
+          'Completed': 'bg-success',
+          'Cancelled': 'bg-danger'
+        };
+        return statusClasses[status] || 'bg-secondary';
+      }
+
+      // Hàm lấy text tiếng Việt cho trạng thái
+      function getStatusText(status) {
+        const statusTexts = {
+          'Pending': 'Chờ xử lý',
+          'Processing': 'Đang xử lý',
+          'Completed': 'Hoàn thành',
+          'Cancelled': 'Đã hủy'
+        };
+        return statusTexts[status] || status;
+      }
+
+      // Hàm hiển thị chi tiết đơn hàng
+      function showOrderDetail(orderId) {
+        // Thêm code hiển thị modal chi tiết đơn hàng ở đây
+        // Có thể gọi API khác để lấy chi tiết đơn hàng nếu cần
       }
     </script>
   </body>

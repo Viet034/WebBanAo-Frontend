@@ -615,4 +615,30 @@ jQuery(document).ready(function($)
             return new Intl.NumberFormat(i18next.language === 'vi' ? 'vi-VN' : 'en-US', options).format(price);
         }
     });
+
+    function renderProduct(product) {
+        console.log("Rendering product:", product); // Thêm log để kiểm tra
+        return `
+            <div class="col-lg-4 col-md-6">
+                <div class="product-item">
+                    <div class="product discount product_filter">
+                        <div class="product_image">
+                            <img src="${product.imageUrl}" alt="${product.name}">
+                        </div>
+                        <div class="product_info">
+                            <h6 class="product_name">
+                                <a href="single.html?id=${product.id}">${product.name}</a>
+                            </h6>
+                            <div class="product_price">${product.price.toLocaleString()}đ</div>
+                        </div>
+                    </div>
+                    <button class="red_button add_to_cart_button" 
+                            onclick="handleAddToCart(${product.id})" 
+                            style="width: 100%; border: none; padding: 10px; cursor: pointer;">
+                        Thêm vào giỏ hàng
+                    </button>
+                </div>
+            </div>
+        `;
+    }
 });

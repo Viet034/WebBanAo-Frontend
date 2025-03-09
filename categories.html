@@ -46,6 +46,21 @@
       type="text/css"
       href="styles/categories_responsive.css"
     />
+    <style>
+      .product_image {
+        width: 100%;
+        height: 250px;  /* Chiều cao cố định cho tất cả ảnh */
+        overflow: hidden;
+        position: relative;
+      }
+
+      .product_image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;  /* Giữ tỷ lệ ảnh và cắt phần thừa */
+        object-position: center;  /* Căn giữa ảnh */
+      }
+    </style>
   </head>
 
   <body>
@@ -126,25 +141,32 @@
             <div class="row">
               <div class="col-lg-12 text-right">
                 <div class="logo_container">
-                  <a href="#">colo<span>shop</span></a>
+                  <a href="#">Tien<span>Tien </span></a>
                 </div>
                 <nav class="navbar">
                   <ul class="navbar_menu">
-                    <li><a href="index.html">home</a></li>
-                    <li><a href="#">shop</a></li>
-                    <li><a href="#">promotion</a></li>
-                    <li><a href="#">pages</a></li>
-                    <li><a href="#">blog</a></li>
-                    <li><a href="contact.html">contact</a></li>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="categories.html">danh mục </a></li>
+
+                    <li><a href="contact.html">Liên hệ </a></li>
                   </ul>
                   <ul class="navbar_user">
                     <li>
-                      <a href="#"
-                        ><i class="fa fa-search" aria-hidden="true"></i
-                      ></a>
+                      <div class="search-container">
+                        <form id="searchForm" class="search-form">
+                          <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Tìm kiếm sản phẩm..."
+                          />
+                          <button type="submit">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                          </button>
+                        </form>
+                      </div>
                     </li>
                     <li>
-                      <a href="#"
+                      <a href="profile.html"
                         ><i class="fa fa-user" aria-hidden="true"></i
                       ></a>
                     </li>

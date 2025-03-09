@@ -1010,6 +1010,8 @@ section
 	width: 20%;
 	height: 380px;
 	cursor: pointer;
+	position: relative;
+	margin-bottom: 30px;
 }
 .product-item::after
 {
@@ -1156,11 +1158,16 @@ section
 	-ms-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
 	transition: all 0.3s ease;
+	background-color: #fe4c50;
+	color: white;
+	text-transform: uppercase;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
 }
-.add_to_cart_button a
+.add_to_cart_button:hover
 {
-	font-size: 12px;
-	font-weight: 600;
+	background-color: #f23235;
 }
 .product-item:hover .add_to_cart_button
 {
@@ -1769,4 +1776,8 @@ section
 
 .search-result-item .product-price {
   color: #fe4c50;
+}
+
+.product_filter {
+    margin-bottom: 0;
 }

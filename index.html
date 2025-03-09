@@ -34,6 +34,51 @@
     />
     <link rel="stylesheet" type="text/css" href="styles/main_styles.css" />
     <link rel="stylesheet" type="text/css" href="styles/responsive.css" />
+    <style>
+      .banner_item {
+        margin-left: 30px;  /* Thêm margin bên trái */
+      }
+
+      /* Hoặc nếu muốn dịch cả container */
+      #banner-container {
+        padding-left: 30px;  /* Thêm padding bên trái */
+      }
+
+      /* Style cho product items trong slider */
+      .product_image {
+        width: 100%;
+        height: 250px;  /* Chiều cao cố định cho tất cả ảnh */
+        overflow: hidden;
+        position: relative;
+      }
+
+      .product_image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;  /* Giữ tỷ lệ ảnh và cắt phần thừa */
+        object-position: center;  /* Căn giữa ảnh */
+      }
+
+      /* Đảm bảo các item có kích thước đồng đều */
+      .product-item {
+        padding: 0 10px;  /* Thêm khoảng cách giữa các items */
+      }
+
+      .product {
+        margin-bottom: 5px;  /* Giảm margin bottom */
+      }
+
+      /* Đảm bảo phần thông tin sản phẩm có đủ khoảng trống */
+      .product_info {
+        min-height: 45px;  /* Giảm chiều cao tối thiểu */
+        margin-bottom: 0;  /* Bỏ margin bottom */
+      }
+
+      /* Style cho nút thêm giỏ hàng */
+      .add_to_cart_button {
+        margin-top: 0;  /* Bỏ margin top */
+      }
+    </style>
   </head>
 
   <body>
@@ -54,18 +99,7 @@
                   <ul class="top_nav_menu">
                     <!-- Currency / Language / My Account -->
 
-                    <!-- <li class="currency">
-                      <a href="#">
-                        usd
-                        <i class="fa fa-angle-down"></i>
-                      </a>
-                      <ul class="currency_selection">
-                        <li><a href="#">cad</a></li>
-                        <li><a href="#">aud</a></li>
-                        <li><a href="#">eur</a></li>
-                        <li><a href="#">gbp</a></li>
-                      </ul>
-                    </li> -->
+                    
                     <li class="language">
                       <a href="#">
                         Tiếng Việt
@@ -77,20 +111,20 @@
                     </li>
                     <li class="account">
                       <a href="#">
-                        My Account
+                        Tài khoản
                         <i class="fa fa-angle-down"></i>
                       </a>
                       <ul class="account_selection">
                         <li id="loginSection">
                           <a href="login.html">
-                            <i class="fa fa-sign-in" aria-hidden="true"></i>Sign
-                            In
+                            <i class="fa fa-sign-in" aria-hidden="true"></i>Đăng nhập
+                            
                           </a>
                         </li>
                         <li id="registerSection">
                           <a href="#">
                             <i class="fa fa-user-plus" aria-hidden="true"></i
-                            >Register
+                            >Đăng ký
                           </a>
                         </li>
                         <li id="userSection" style="display: none">
@@ -101,8 +135,8 @@
                         </li>
                         <li id="logoutSection" style="display: none">
                           <a href="#" id="logoutBtn">
-                            <i class="fa fa-sign-out" aria-hidden="true"></i
-                            >Đăng xuất
+                            <i class="fa fa-sign-out" aria-hidden="true"> Đăng xuất</i
+                            >
                           </a>
                         </li>
                       </ul>
@@ -151,10 +185,10 @@
                       ></a>
                     </li>
                     <li class="checkout">
-                      <a href="#">
+                      <a href="cart.html">
                         <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                         <span id="checkout_items" class="checkout_items"
-                          >2</span
+                          >0</span
                         >
                       </a>
                     </li>
@@ -169,65 +203,6 @@
         </div>
       </header>
 
-      <div class="fs_menu_overlay"></div>
-      <div class="hamburger_menu">
-        <div class="hamburger_close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-        </div>
-        <div class="hamburger_menu_content text-right">
-          <ul class="menu_top_nav">
-            <li class="menu_item has-children">
-              <a href="#">
-                usd
-                <i class="fa fa-angle-down"></i>
-              </a>
-              <ul class="menu_selection">
-                <li><a href="#">cad</a></li>
-                <li><a href="#">aud</a></li>
-                <li><a href="#">eur</a></li>
-                <li><a href="#">gbp</a></li>
-              </ul>
-            </li>
-            <li class="menu_item has-children">
-              <a href="#">
-                English
-                <i class="fa fa-angle-down"></i>
-              </a>
-              <ul class="menu_selection">
-                <li><a href="#">French</a></li>
-                <li><a href="#">Italian</a></li>
-                <li><a href="#">German</a></li>
-                <li><a href="#">Spanish</a></li>
-              </ul>
-            </li>
-            <li class="menu_item has-children">
-              <a href="#">
-                My Account
-                <i class="fa fa-angle-down"></i>
-              </a>
-              <ul class="menu_selection">
-                <li>
-                  <a href="#"
-                    ><i class="fa fa-sign-in" aria-hidden="true"></i>Sign In</a
-                  >
-                </li>
-                <li>
-                  <a href="#"
-                    ><i class="fa fa-user-plus" aria-hidden="true"></i
-                    >Register</a
-                  >
-                </li>
-              </ul>
-            </li>
-            <li class="menu_item"><a href="#">home</a></li>
-            <li class="menu_item"><a href="#">shop</a></li>
-            <li class="menu_item"><a href="#">promotion</a></li>
-            <li class="menu_item"><a href="#">pages</a></li>
-            <li class="menu_item"><a href="#">blog</a></li>
-            <li class="menu_item"><a href="#">contact</a></li>
-          </ul>
-        </div>
-      </div>
 
       <!-- Slider -->
 
@@ -255,27 +230,7 @@
       <div class="banner">
         <div class="container">
           <div class="row" id="banner-container">
-            <!-- <div class="col-md-4">
-					<div class="banner_item align-items-center" style="background-image:url(images/banner_1.jpg)">
-						<div class="banner_category">
-							<a href="categories.html">women's</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="banner_item align-items-center" style="background-image:url(images/banner_2.jpg)">
-						<div class="banner_category">
-							<a href="categories.html">accessories's</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="banner_item align-items-center" style="background-image:url(images/banner_3.jpg)">
-						<div class="banner_category">
-							<a href="categories.html">men's</a>
-						</div>
-					</div>
-				</div> -->
+            
           </div>
         </div>
       </div>
@@ -295,36 +250,7 @@
           </div>
           <div class="row align-items-center">
             <div class="col text-center">
-              <div class="new_arrivals_sorting">
-                <ul
-                  class="arrivals_grid_sorting clearfix button-group filters-button-group"
-                >
-                  <li
-                    class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center active is-checked"
-                    data-filter="*"
-                  >
-                    all
-                  </li>
-                  <li
-                    class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center"
-                    data-filter=".women"
-                  >
-                    women's
-                  </li>
-                  <li
-                    class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center"
-                    data-filter=".accessories"
-                  >
-                    accessories
-                  </li>
-                  <li
-                    class="grid_sorting_button button d-flex flex-column justify-content-center align-items-center"
-                    data-filter=".men"
-                  >
-                    men's
-                  </li>
-                </ul>
-              </div>
+              
             </div>
           </div>
           <div class="row">
@@ -357,7 +283,9 @@
                     </div>
                   </div>
                   <div class="red_button add_to_cart_button">
-                    <a href="#">add to cart</a>
+                    <button type="button" data-product-id="${product.id}" class="btn">
+                        Thêm vào giỏ hàng
+                    </button>
                   </div>
                 </div>
               </div>
@@ -373,47 +301,10 @@
           <div class="row align-items-center">
             <div class="col-lg-6">
               <div class="deal_ofthe_week_img">
-                <img src="images/deal_ofthe_week.png" alt="" />
+                <img src="images/Banner (2).png" alt="" />
               </div>
             </div>
-            <div class="col-lg-6 text-right deal_ofthe_week_col">
-              <div
-                class="deal_ofthe_week_content d-flex flex-column align-items-center float-right"
-              >
-                <div class="section_title">
-                  <h2>Deal Of The Week</h2>
-                </div>
-                <ul class="timer">
-                  <li
-                    class="d-inline-flex flex-column justify-content-center align-items-center"
-                  >
-                    <div id="day" class="timer_num">03</div>
-                    <div class="timer_unit">Day</div>
-                  </li>
-                  <li
-                    class="d-inline-flex flex-column justify-content-center align-items-center"
-                  >
-                    <div id="hour" class="timer_num">15</div>
-                    <div class="timer_unit">Hours</div>
-                  </li>
-                  <li
-                    class="d-inline-flex flex-column justify-content-center align-items-center"
-                  >
-                    <div id="minute" class="timer_num">45</div>
-                    <div class="timer_unit">Mins</div>
-                  </li>
-                  <li
-                    class="d-inline-flex flex-column justify-content-center align-items-center"
-                  >
-                    <div id="second" class="timer_num">23</div>
-                    <div class="timer_unit">Sec</div>
-                  </li>
-                </ul>
-                <div class="red_button deal_ofthe_week_button">
-                  <a href="#">shop now</a>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -748,72 +639,7 @@
         </div>
       </div>
 
-      <!-- Blogs -->
-
-      <div class="blogs">
-        <div class="container">
-          <div class="row">
-            <div class="col text-center">
-              <div class="section_title">
-                <h2>Latest Blogs</h2>
-              </div>
-            </div>
-          </div>
-          <div class="row blogs_container">
-            <div class="col-lg-4 blog_item_col">
-              <div class="blog_item">
-                <div
-                  class="blog_background"
-                  style="background-image: url(images/blog_1.jpg)"
-                ></div>
-                <div
-                  class="blog_content d-flex flex-column align-items-center justify-content-center text-center"
-                >
-                  <h4 class="blog_title">
-                    Here are the trends I see coming this fall
-                  </h4>
-                  <span class="blog_meta">by admin | dec 01, 2017</span>
-                  <a class="blog_more" href="#">Read more</a>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-4 blog_item_col">
-              <div class="blog_item">
-                <div
-                  class="blog_background"
-                  style="background-image: url(images/blog_2.jpg)"
-                ></div>
-                <div
-                  class="blog_content d-flex flex-column align-items-center justify-content-center text-center"
-                >
-                  <h4 class="blog_title">
-                    Here are the trends I see coming this fall
-                  </h4>
-                  <span class="blog_meta">by admin | dec 01, 2017</span>
-                  <a class="blog_more" href="#">Read more</a>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-4 blog_item_col">
-              <div class="blog_item">
-                <div
-                  class="blog_background"
-                  style="background-image: url(images/blog_3.jpg)"
-                ></div>
-                <div
-                  class="blog_content d-flex flex-column align-items-center justify-content-center text-center"
-                >
-                  <h4 class="blog_title">
-                    Here are the trends I see coming this fall
-                  </h4>
-                  <span class="blog_meta">by admin | dec 01, 2017</span>
-                  <a class="blog_more" href="#">Read more</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       <!-- Newsletter -->
 
@@ -935,6 +761,12 @@
     <script src="plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
     <script src="plugins/easing/easing.js"></script>
     <script src="js/custom.js"></script>
+    <script src="js/cart.js"></script>
+    <script>
+      // Test xem scripts đã load
+      console.log('All scripts loaded');
+      console.log('jQuery version:', $.fn.jquery);
+    </script>
 
     <script>
       $(document).ready(function () {
@@ -944,19 +776,49 @@
             console.error("Có lỗi xảy ra khi gọi API:", error);
             return;
           }
-          // Hiển thị sản phẩm
+
+          console.log("Brands data:", brands); // Debug xem dữ liệu
+
+          $("#banner-container").empty();
+
           $.each(brands, function (index, brand) {
-            console.log("brand: ", brand);
-            // Append each product item
-            $("#banner-container").append(
-              `<div class="col-md-4">
-					<div class="banner_item align-items-center" style="background-image:url(images/banner_2.jpg)">
-						<div class="banner_category">
-							<a href="categories.html?id=${brand.id}">${brand.brandName}</a>
-						</div>
-					</div>
-		</div>`
-            );
+            $("#banner-container").append(`
+              <div>
+                <div class="banner_item align-items-center" 
+                     style="background-image: url('${brand.image }')">
+                  <div class="banner_category">
+                    <a href="categories.html?id=${brand.id}">${brand.brandName}</a>
+                  </div>
+                </div>
+              </div>
+            `);
+          });
+
+          // Khởi tạo slick slider
+          $("#banner-container").slick({
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            prevArrow: $('.slider-prev'),
+            nextArrow: $('.slider-next'),
+            infinite: true,
+            speed: 500,
+            cssEase: 'ease-in-out',
+            autoplay: true,
+            autoplaySpeed: 3000,
+            responsive: [
+              {
+                breakpoint: 992,
+                settings: {
+                  slidesToShow: 2
+                }
+              },
+              {
+                breakpoint: 768,
+                settings: {
+                  slidesToShow: 1
+                }
+              }
+            ]
           });
         });
       });
@@ -1016,14 +878,18 @@
                     </div>
                     <div class="favorite favorite_left"></div>
                     <div class="product_bubble product_bubble_right product_bubble_red d-flex flex-column align-items-center">
-                      <span>-$20</span>
+                      <span>New</span>
                     </div>
                     <div class="product_info">
                       <h6 class="product_name"><a href="single.html?id=${product.id}">${product.name}</a></h6>
                       <div class="product_price">$${product.price}<span>$${product.originalPrice}</span></div>
                     </div>
                   </div>
-                  <div class="red_button add_to_cart_button"><a href="#">add to cart</a></div>
+                  <div class="red_button add_to_cart_button">
+                    <button type="button" data-product-id="${product.id}" class="btn">
+                        Thêm vào giỏ hàng
+                    </button>
+                  </div>
                 </div>`
               );
             });
