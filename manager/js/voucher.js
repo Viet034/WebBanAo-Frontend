@@ -27,15 +27,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const endDate = new Date(document.getElementById("voucherEndDate").value);
       
       const formData = {
-        code: document.getElementById("voucherCode").value,
+        code: generateVoucherCode(),
         name: document.getElementById("voucherName").value,
         description: document.getElementById("voucherDescription").value,
         quantity: parseInt(document.getElementById("voucherQuantity").value),
         discountValue: Math.round(parseFloat(document.getElementById("voucherDiscountValue").value)),
         minimumOrderValue: parseFloat(document.getElementById("voucherMinimumOrderValue").value),
         maxDiscount: parseFloat(document.getElementById("voucherMaxDiscount").value),
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+        startDate: startDate,
+        endDate: endDate,
         status: "Active"
       };
 
@@ -206,7 +206,9 @@ function renderVouchers(searchTerm = "") {
     () => renderVouchers(searchTerm)
   );
 }
-
+function generateVoucherCode() {
+  return 'VOU' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+}
 // Thêm voucher mới
 function addVoucher(data) {
   const token = localStorage.getItem("token");
@@ -277,14 +279,15 @@ function fillEditForm(voucher) {
   document.getElementById("editVoucherDiscountValue").value = voucher.discountValue;
   document.getElementById("editVoucherMinimumOrderValue").value = voucher.minimumOrderValue;
   document.getElementById("editVoucherMaxDiscount").value = voucher.maxDiscount;
-  
+  document.getElementById("editVoucherStartDate").value = voucher.startDate;
+  document.getElementById("editVoucherEndDate").value = voucher.endDate;
   // Format dates for datetime-local input - giữ nguyên giờ
-  const startDate = new Date(voucher.startDate);
-  const endDate = new Date(voucher.endDate);
+  // const startDate = new Date(voucher.startDate);
+  // const endDate = new Date(voucher.endDate);
   
-  // Format theo định dạng YYYY-MM-DDThh:mm
-  document.getElementById("editVoucherStartDate").value = startDate.toISOString().slice(0, 16);
-  document.getElementById("editVoucherEndDate").value = endDate.toISOString().slice(0, 16);
+  // // Format theo định dạng YYYY-MM-DDThh:mm
+  // document.getElementById("editVoucherStartDate").value = startDate.toISOString().slice(0, 16);
+  // document.getElementById("editVoucherEndDate").value = endDate.toISOString().slice(0, 16);
 }
 
 // Xử lý submit form sửa
@@ -298,14 +301,9 @@ function handleEditFormSubmit(e) {
     const currentVoucher = voucherData.find(v => v.id === parseInt(id));
     if (!currentVoucher) throw new Error("Không tìm thấy thông tin voucher");
 
-    // Lấy giá trị ngày từ form
-    const startDateStr = document.getElementById("editVoucherStartDate").value;
-    const endDateStr = document.getElementById("editVoucherEndDate").value;
-
-    // Chuyển đổi sang đối tượng Date và giữ nguyên giờ từ input
-    const startDate = new Date(startDateStr);
-    const endDate = new Date(endDateStr);
-
+    
+    const startDate = document.getElementById("editVoucherStartDate").value; 
+    const endDate = document.getElementById("editVoucherEndDate").value;
     // Validate ngày
     if (startDate >= endDate) {
       alert("Ngày kết thúc phải sau ngày bắt đầu!");
@@ -321,13 +319,13 @@ function handleEditFormSubmit(e) {
       discountValue: Math.round(parseFloat(document.getElementById("editVoucherDiscountValue").value)),
       minimumOrderValue: parseFloat(document.getElementById("editVoucherMinimumOrderValue").value),
       maxDiscount: parseFloat(document.getElementById("editVoucherMaxDiscount").value),
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      startDate: startDate,
+      endDate: endDate,
       status: currentVoucher.status
     };
 
     // Validate dữ liệu cơ bản
-    if (!formData.code || !formData.name || !formData.description) {
+    if ( !formData.name || !formData.description) {
       alert("Vui lòng điền đầy đủ thông tin!");
       return;
     }

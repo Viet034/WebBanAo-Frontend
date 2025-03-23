@@ -2,10 +2,15 @@
     Phương thức GET, truyền url vào tham số 
     và hàm callback để chuyển dữ liệu sau khi call API
 */
-function get(url, callback){
+function get(url, token, callback){
     $.ajax({
         url: url, // Địa chỉ API  
         method: 'GET',  
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
         success: function(data) {  
             callback(null, data); // Gọi lại với data  
         },  

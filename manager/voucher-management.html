@@ -124,7 +124,7 @@
           </div>
           <div class="modal-body">
             <form id="addVoucherForm">
-              <div class="mb-3">
+              <!-- <div class="mb-3">
                 <label for="voucherCode" class="form-label">Mã Voucher</label>
                 <input
                   type="text"
@@ -132,7 +132,7 @@
                   id="voucherCode"
                   required
                 />
-              </div>
+              </div> -->
               <div class="mb-3">
                 <label for="voucherName" class="form-label">Tên Voucher</label>
                 <input
@@ -157,7 +157,7 @@
                   class="form-control"
                   id="voucherQuantity"
                   required
-                  min="0"
+                  min="1"
                 />
               </div>
               <div class="mb-3">
@@ -244,7 +244,8 @@
           <div class="modal-body">
             <form id="editVoucherForm">
               <input type="hidden" id="editVoucherId" />
-              <div class="mb-3">
+              <input type="hidden" id="editVoucherCode" />
+              <!-- <div class="mb-3">
                 <label for="editVoucherCode" class="form-label"
                   >Mã Voucher</label
                 >
@@ -254,7 +255,7 @@
                   id="editVoucherCode"
                   required
                 />
-              </div>
+              </div> -->
               <div class="mb-3">
                 <label for="editVoucherName" class="form-label"
                   >Tên Voucher</label

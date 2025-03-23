@@ -147,6 +147,7 @@ function renderCustomers(searchTerm = "") {
         <td>${customer.fullName || ""}</td>
         <td>${customer.code || ""}</td>
         <td>${customer.email || ""}</td>
+        <td>${customer.phone || ""}</td>
         <td>
           <span class="badge ${
             customer.status === "Active" ? "bg-success" : "bg-danger"

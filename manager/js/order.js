@@ -52,12 +52,11 @@ document.addEventListener("DOMContentLoaded", function(){
   if(editForm){
     editForm.addEventListener("submit", handleEditFormSubmit);
   }
-  //khởi tạo dữ liệu
-  fetchOrders();
-})
-// Khởi tạo các biến và event listeners
-document.addEventListener("DOMContentLoaded", function () {
+
+  // Khởi tạo các event listeners cho search
   initializeEventListeners();
+  
+  //khởi tạo dữ liệu
   fetchOrders();
 });
 
@@ -96,12 +95,15 @@ function checkAuth() {
 // Hàm lấy danh sách đơn hàng
 function fetchOrders() {
   const token = localStorage.getItem("token");
-  if(!token){
+
+  if (!token) {
     console.error("Không tìm thấy token xác thực");
-    alert("Phiên đăng nhập hết hạn, Vui lòng đăng nhập lại");
+    alert("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
     window.location.href = "../login.html";
     return;
   }
+
+  // Chỉ gọi API GetAll
   $.ajax({
     url: "https://localhost:7060/api/Order/GetAll",
     method: "GET",
@@ -110,12 +112,12 @@ function fetchOrders() {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    success: function (response) {
-      console.log("Dữ liệu đơn hàng:", response);
+    success: function(response) {
       orderData = response;
+      console.log("Danh sách đơn hàng:", orderData);
       renderOrders();
     },
-    error: function (xhr, status, error) {
+    error: function(xhr, status, error) {
       console.error("Lỗi khi lấy danh sách đơn hàng:", error);
       alert("Không thể lấy danh sách đơn hàng. Vui lòng thử lại sau.");
     }
@@ -130,6 +132,7 @@ function getStatusText(status) {
     'Confirmed': "Đã xác nhận",
     'Shipped': "Đang giao",
     'Delivery': "Đã giao",
+    'Delivered': "Đã giao",
     'Cancelled': "Đã hủy"
   };
   return statusMap[status] || status;
@@ -142,6 +145,7 @@ function getStatusClass(status) {
     'Confirmed': "status-Confirm",
     'Shipped': "status-Shipped",
     'Delivery': "status-Delivery",
+    'Delivered': "status-Delivery",
     'Cancelled': "status-Cancelled",
     'Proccessed': "status-Proccessed",
     'Complete': "status-Complete"
@@ -152,27 +156,42 @@ function getStatusClass(status) {
 function getOrderButtons(order) {
   let buttons = '';
   
-  if (order.status === 'Pending') {
+  // Nếu là đơn của SYSTEM (chưa ai nhận)
+  if (order.employeeId === 29) {
     buttons = `
-      <button class="btn btn-success btn-sm" onclick="changeOrderStatus(${order.id}, 'Confirmed')">
-        <i class="fas fa-check"></i> Xác nhận
-      </button>
-      <button class="btn btn-danger btn-sm" onclick="changeOrderStatus(${order.id}, 'Cancelled')">
-        <i class="fas fa-times"></i> Hủy
+      <button class="btn btn-primary btn-sm" onclick="assignOrderToMe(${order.id})">
+        <i class="fas fa-hand-pointer"></i> Nhận xử lý
       </button>
     `;
-  } else if (order.status === 'Confirmed') {
-    buttons = `
-      <button class="btn btn-primary btn-sm" onclick="changeOrderStatus(${order.id}, 'Shipped')">
-        <i class="fas fa-shipping-fast"></i> Giao hàng
-      </button>
-    `;
-  } else if (order.status === 'Shipped') {
-    buttons = `
-      <button class="btn btn-success btn-sm" onclick="changeOrderStatus(${order.id}, 'Delivery')">
-        <i class="fas fa-check-circle"></i> Đã giao
-      </button>
-    `;
+    return buttons;
+  }
+
+  // Nếu là đơn đã được assign cho nhân viên này
+  switch(order.status) {
+    case 'Pending':
+      buttons = `
+        <button class="btn btn-success btn-sm" onclick="changeOrderStatus(${order.id}, 'Confirmed')">
+          <i class="fas fa-check"></i> Xác nhận
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="changeOrderStatus(${order.id}, 'Cancelled')">
+          <i class="fas fa-times"></i> Hủy
+        </button>
+      `;
+      break;
+    case 'Confirmed':
+      buttons = `
+        <button class="btn btn-primary btn-sm" onclick="changeOrderStatus(${order.id}, 'Shipped')">
+          <i class="fas fa-shipping-fast"></i> Giao hàng
+        </button>
+      `;
+      break;
+    case 'Shipped':
+      buttons = `
+        <button class="btn btn-success btn-sm" onclick="changeOrderStatus(${order.id}, 'Delivered')">
+          <i class="fas fa-check-circle"></i> Đã giao
+        </button>
+      `;
+      break;
   }
   
   return buttons;
@@ -198,13 +217,26 @@ function renderOrders(orders = orderData) {
     return;
   }
 
-  orders.forEach((order, index) => {
+  // Sắp xếp orders theo OrderDate mới nhất
+  const sortedOrders = [...orders].sort((a, b) => 
+    new Date(b.orderDate) - new Date(a.orderDate)
+  );
+
+  sortedOrders.forEach((order, index) => {
     const row = `
       <tr>
         <td>${index + 1}</td>
         <td>${order.code || "N/A"}</td>
         <td>${order.totalAmount ? order.totalAmount.toLocaleString("vi-VN") : 0}đ</td>
-        <td>${order.orderDate ? new Date(order.orderDate).toLocaleDateString("vi-VN") : "N/A"}</td>
+        <td>${order.orderDate ? new Date(order.orderDate).toLocaleString("vi-VN", {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }) : "N/A"}</td>
         <td>
           <span class="badge ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
         </td>
@@ -224,36 +256,84 @@ function renderOrders(orders = orderData) {
 
 // Hàm thay đổi trạng thái đơn hàng
 function changeOrderStatus(id, newStatus) {
+  const token = localStorage.getItem("token");
+  
   $.ajax({
     url: `https://localhost:7060/api/Order/ChangeSstatus/${id}?newStatus=${newStatus}`,
     method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    data: JSON.stringify({ newStatus: newStatus }),
     success: function (response) {
       alert("Cập nhật trạng thái thành công!");
       fetchOrders();
     },
-    error: function (xhr, status, error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
-      alert("Không thể cập nhật trạng thái. Vui lòng thử lại sau.");
+    error: function (xhr) {
+      if (xhr.status === 400) {
+        alert("Không thể chuyển sang trạng thái này!");
+      } else {
+        alert("Lỗi khi cập nhật trạng thái!");
+      }
+    }
+  });
+}
+//Nhận xử lý đơn hàng
+function assignOrderToMe(orderId) {
+  const token = localStorage.getItem("token");
+  
+  $.ajax({
+    url: `https://localhost:7060/api/Order/assign-order/${orderId}`,
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      alert("Đã nhận xử lý đơn hàng!", response);
+      fetchOrders();
+    },
+    error: function (xhr) {
+      if (xhr.status === 400) {
+        alert("Đơn hàng đã được nhân viên khác xử lý!");
+      } else {
+        alert("Lỗi khi nhận đơn hàng!");
+      }
     }
   });
 }
 
 // Hàm hiển thị chi tiết đơn hàng
 function showOrderDetails(orderId) {
+  const token = localStorage.getItem("token");
   $.ajax({
     url: `https://localhost:7060/api/Order/findId/${orderId}`,
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function(order) {
       $.ajax({
         url: `https://localhost:7060/api/Customer/findId/${order.customerId}`,
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         success: function(customer) {
           document.getElementById("orderInfo").innerHTML = `
             <div class="row mb-3">
               <div class="col-md-6">
                 <h5>Thông tin đơn hàng</h5>
                 <p><strong>Mã đơn hàng:</strong> ${order.code}</p>
-                <p><strong>Ngày đặt:</strong> ${new Date(order.orderDate).toLocaleDateString("vi-VN")}</p>
+                <p><strong>Ngày đặt:</strong> ${new Date(order.orderDate).toLocaleString("vi-VN", {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                  hour12: false
+                })}</p>
                 <p><strong>Trạng thái:</strong> <span class="badge ${getStatusClass(order.status)}">${getStatusText(order.status)}</span></p>
                 <p><strong>Tổng tiền:</strong> ${order.totalAmount?.toLocaleString("vi-VN")}đ</p>
               </div>
@@ -282,16 +362,23 @@ function showOrderDetails(orderId) {
 
 // Hàm load chi tiết đơn hàng
 function loadOrderDetails(orderId) {
+  const token = localStorage.getItem("token");
   $.ajax({
     url: "https://localhost:7060/api/OrderDetail/GetAll",
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function(allDetails) {
       const orderDetails = allDetails.filter(detail => detail.orderId === orderId);
       
       const productPromises = orderDetails.map(detail =>
         $.ajax({
           url: `https://localhost:7060/api/ProductDetail/findId/${detail.productDetailId}`,
-          method: "GET"
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
       );
 
@@ -358,9 +445,13 @@ function getOrderDetailStatusButtons(detail) {
 
 // Hàm thay đổi trạng thái chi tiết đơn hàng
 function changeOrderDetailStatus(id, newStatus) {
+  const token = localStorage.getItem("token");
   $.ajax({
     url: `https://localhost:7060/api/OrderDetail/ChangeSstatus/${id}?newStatus=${newStatus}`,
     method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       alert("Cập nhật trạng thái thành công!");
       // Refresh chi tiết đơn hàng
@@ -374,25 +465,22 @@ function changeOrderDetailStatus(id, newStatus) {
   });
 }
 
-// Hàm lọc đơn hàng theo trạng thái
+// Phiên bản tối ưu hơn - lọc từ dữ liệu có sẵn
 function filterByStatus() {
   const selectedStatus = document.getElementById("statusFilter").value;
-  $.ajax({
-    url: "https://localhost:7060/api/Order/GetAll",
-    method: "GET",
-    success: function (response) {
-      if (selectedStatus) {
-        const filteredOrders = response.filter(order => order.status === selectedStatus);
-        renderOrders(filteredOrders);
-      } else {
-        renderOrders(response);
-      }
-    },
-    error: function (xhr, status, error) {
-      console.error("Lỗi khi lọc đơn hàng:", error);
-      alert("Không thể lọc đơn hàng. Vui lòng thử lại sau.");
-    }
-  });
+  console.log("Selected status:", selectedStatus);
+  console.log("Available orders:", orderData);
+  
+  if (selectedStatus) {
+    const filteredOrders = orderData.filter(order => {
+      console.log(`Comparing: order.status="${order.status}" with selected="${selectedStatus}"`);
+      return order.status === selectedStatus;
+    });
+    console.log("Filtered orders:", filteredOrders);
+    renderOrders(filteredOrders);
+  } else {
+    renderOrders(orderData);
+  }
 }
 
 // Hàm tìm kiếm đơn hàng
@@ -402,10 +490,19 @@ function searchOrders() {
     fetchOrders();
     return;
   }
-
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
   $.ajax({
-    url: "https://localhost:7060/api/Order/GetAll",
+    url: `https://localhost:7060/api/Order/FindByName/${searchTerm}`,
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       const filteredOrders = response.filter(order => 
         order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||

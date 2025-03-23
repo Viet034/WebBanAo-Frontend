@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Single Product</title>
+    <title>Sản phẩm chi tiết</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="Colo Shop Template" />
@@ -43,6 +43,77 @@
       type="text/css"
       href="styles/single_responsive.css"
     />
+    <style>
+      .search-container {
+        position: relative;
+      }
+
+      #searchInput {
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        max-height: 75vh;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background-color: white;
+        z-index: 1000;
+        display: none;
+        width: 350px;
+      }
+
+      .search-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .search-item:hover {
+        background-color: #f8f8f8;
+      }
+
+      .search-item-content {
+        display: flex;
+        gap: 15px;
+        min-height: 50px;
+      }
+
+      .search-item-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+      }
+
+      .search-item-details {
+        flex: 1;
+        display: flex;
+        align-items: center;
+      }
+
+      .search-item-name {
+        font-size: 15px;
+        font-weight: 500;
+        margin: 0;
+        line-height: 1.4;
+        white-space: normal;
+        overflow: visible;
+        width: 100%;
+        padding-right: 20px;
+      }
+    </style>
   </head>
 
   <body>
@@ -56,59 +127,54 @@
           <div class="container">
             <div class="row">
               <div class="col-md-6">
-                <div class="top_nav_left">
-                  free shipping on all u.s orders over $50
-                </div>
+                <div class="top_nav_left">Bán có tâm, Ắt có tầm</div>
               </div>
               <div class="col-md-6 text-right">
                 <div class="top_nav_right">
                   <ul class="top_nav_menu">
-                    <!-- Currency / Language / My Account -->
+                    
 
-                    <li class="currency">
-                      <a href="#">
-                        usd
-                        <i class="fa fa-angle-down"></i>
-                      </a>
-                      <ul class="currency_selection">
-                        <li><a href="#">cad</a></li>
-                        <li><a href="#">aud</a></li>
-                        <li><a href="#">eur</a></li>
-                        <li><a href="#">gbp</a></li>
-                      </ul>
-                    </li>
+                    
                     <li class="language">
                       <a href="#">
-                        English
+                        Tiếng Việt
                         <i class="fa fa-angle-down"></i>
                       </a>
                       <ul class="language_selection">
-                        <li><a href="#">French</a></li>
-                        <li><a href="#">Italian</a></li>
-                        <li><a href="#">German</a></li>
-                        <li><a href="#">Spanish</a></li>
+                        <li><a href="#">Tiếng Việt</a></li>
                       </ul>
-                    </li>
-                    <li class="account">
-                      <a href="#">
-                        My Account
-                        <i class="fa fa-angle-down"></i>
-                      </a>
-                      <ul class="account_selection">
-                        <li>
-                          <a href="#"
-                            ><i class="fa fa-sign-in" aria-hidden="true"></i
-                            >Sign In</a
-                          >
-                        </li>
-                        <li>
-                          <a href="#"
-                            ><i class="fa fa-user-plus" aria-hidden="true"></i
-                            >Register</a
-                          >
-                        </li>
-                      </ul>
-                    </li>
+                      <li class="account">
+                        <a href="#">
+                          Tài khoản
+                          <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="account_selection">
+                          <li id="loginSection">
+                            <a href="login.html">
+                              <i class="fa fa-sign-in" aria-hidden="true"></i>Đăng nhập
+                              
+                            </a>
+                          </li>
+                          <li id="registerSection">
+                            <a href="#">
+                              <i class="fa fa-user-plus" aria-hidden="true"></i
+                              >Đăng ký
+                            </a>
+                          </li>
+                          <li id="userSection" style="display: none">
+                            <a href="profile.html">
+                              <i class="fa fa-user" aria-hidden="true"></i>
+                              <span id="userFullName"></span>
+                            </a>
+                          </li>
+                          <li id="logoutSection" style="display: none">
+                            <a href="#" id="logoutBtn">
+                              <i class="fa fa-sign-out" aria-hidden="true"> Đăng xuất</i
+                              >
+                            </a>
+                          </li>
+                        </ul>
+                      </li>
                   </ul>
                 </div>
               </div>
@@ -123,33 +189,32 @@
             <div class="row">
               <div class="col-lg-12 text-right">
                 <div class="logo_container">
-                  <a href="#">colo<span>shop</span></a>
+                  <a href="index.html">Tien<span>Tien </span></a>
                 </div>
                 <nav class="navbar">
                   <ul class="navbar_menu">
-                    <li><a href="index.html">home</a></li>
-                    <li><a href="#">shop</a></li>
-                    <li><a href="#">promotion</a></li>
-                    <li><a href="#">pages</a></li>
-                    <li><a href="#">blog</a></li>
-                    <li><a href="contact.html">contact</a></li>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="categories.html">danh mục </a></li>
+
+                    <li><a href="contact.html">Liên hệ </a></li>
                   </ul>
                   <ul class="navbar_user">
                     <li>
-                      <a href="#"
-                        ><i class="fa fa-search" aria-hidden="true"></i
-                      ></a>
+                      <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..." />
+                        <div id="searchResults" class="search-results"></div>
+                      </div>
                     </li>
                     <li>
-                      <a href="#"
+                      <a href="profile.html"
                         ><i class="fa fa-user" aria-hidden="true"></i
                       ></a>
                     </li>
                     <li class="checkout">
-                      <a href="#">
+                      <a href="cart.html">
                         <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                         <span id="checkout_items" class="checkout_items"
-                          >2</span
+                          >0</span
                         >
                       </a>
                     </li>
@@ -235,16 +300,10 @@
             <div class="breadcrumbs d-flex flex-row align-items-center">
               <ul>
                 <li><a href="index.html">Home</a></li>
-                <li>
-                  <a href="categories.html"
-                    ><i class="fa fa-angle-right" aria-hidden="true"></i
-                    >Men's</a
-                  >
-                </li>
+                
                 <li class="active">
                   <a href="#"
-                    ><i class="fa fa-angle-right" aria-hidden="true"></i>Single
-                    Product</a
+                    ><i class="fa fa-angle-right" aria-hidden="true"></i>Sản phẩm chi tiết</a
                   >
                 </li>
               </ul>
@@ -288,7 +347,7 @@
                     <div
                       class="single_product_image_background"
                       style="
-                        background-image: url(https://fagopet.vn/storage/in/r5/inr5f4qalj068szn2bs34qmv28r2_phoi-giong-meo-munchkin.webp);
+                        background-image: url();
                       "
                     ></div>
                   </div>
@@ -339,7 +398,7 @@
 
       <!-- Tabs -->
 
-      <div class="tabs_section_container">
+      <!-- <div class="tabs_section_container">
         <div class="container">
           <div class="row">
             <div class="col">
@@ -361,10 +420,10 @@
             </div>
           </div>
           <div class="row">
-            <div class="col">
+            <div class="col"> -->
               <!-- Tab Description -->
 
-              <div id="tab_1" class="tab_container active">
+              <!-- <div id="tab_1" class="tab_container active">
                 <div class="row">
                   <div class="col-lg-5 desc_col">
                     <div class="tab_title">
@@ -407,11 +466,11 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Tab Additional Info -->
 
-              <div id="tab_2" class="tab_container">
+              <!-- <div id="tab_2" class="tab_container">
                 <div class="row">
                   <div class="col additional_info_col">
                     <div class="tab_title additional_info_title">
@@ -421,22 +480,60 @@
                     <p>SIZE:<span>L,M,XL</span></p>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Tab Reviews -->
 
-              <div id="tab_3" class="tab_container">
-                <div class="row">
+              <!-- <div id="tab_3" class="tab_container">
+                <div class="row"> -->
                   <!-- User Reviews -->
 
-                  <div class="col-lg-6 reviews_col">
+                  <!-- <div class="col-lg-6 reviews_col">
                     <div class="tab_title reviews_title">
                       <h4>Reviews (2)</h4>
-                    </div>
+                    </div> -->
 
                     <!-- User Review -->
 
-                    <div
+                    <!-- <div
+                      class="user_review_container d-flex flex-column flex-sm-row"
+                    >
+                      <div class="user">
+                        <div class="user_pic"></div>
+                        <div class="user_rating">
+                          <ul class="star_rating">
+                            <li>
+                              <i class="fa fa-star" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                              <i class="fa fa-star" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                              <i class="fa fa-star" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                              <i class="fa fa-star" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                              <i class="fa fa-star-o" aria-hidden="true"></i>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div class="review">
+                        <div class="review_date">27 Aug 2016</div>
+                        <div class="user_name">Brandon William</div>
+                        <p>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit, sed do eiusmod tempor incididunt ut labore et
+                          dolore magna aliqua.
+                        </p>
+                      </div>
+                    </div> -->
+
+                    <!-- User Review -->
+
+                    <!-- <div
                       class="user_review_container d-flex flex-column flex-sm-row"
                     >
                       <div class="user">
@@ -471,49 +568,11 @@
                         </p>
                       </div>
                     </div>
-
-                    <!-- User Review -->
-
-                    <div
-                      class="user_review_container d-flex flex-column flex-sm-row"
-                    >
-                      <div class="user">
-                        <div class="user_pic"></div>
-                        <div class="user_rating">
-                          <ul class="star_rating">
-                            <li>
-                              <i class="fa fa-star" aria-hidden="true"></i>
-                            </li>
-                            <li>
-                              <i class="fa fa-star" aria-hidden="true"></i>
-                            </li>
-                            <li>
-                              <i class="fa fa-star" aria-hidden="true"></i>
-                            </li>
-                            <li>
-                              <i class="fa fa-star" aria-hidden="true"></i>
-                            </li>
-                            <li>
-                              <i class="fa fa-star-o" aria-hidden="true"></i>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div class="review">
-                        <div class="review_date">27 Aug 2016</div>
-                        <div class="user_name">Brandon William</div>
-                        <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  </div> -->
 
                   <!-- Add Review -->
 
-                  <div class="col-lg-6 add_review_col">
+                  <!-- <div class="col-lg-6 add_review_col">
                     <div class="add_review">
                       <form id="review_form" action="post">
                         <div>
@@ -584,7 +643,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Benefit -->
 
@@ -597,8 +656,8 @@
                   <i class="fa fa-truck" aria-hidden="true"></i>
                 </div>
                 <div class="benefit_content">
-                  <h6>free shipping</h6>
-                  <p>Suffered Alteration in Some Form</p>
+                  <h6 style="font-family: Arial;">Miễn phí ship</h6>
+                  <p>Dịch vụ tốt, có tâm</p>
                 </div>
               </div>
             </div>
@@ -608,8 +667,8 @@
                   <i class="fa fa-money" aria-hidden="true"></i>
                 </div>
                 <div class="benefit_content">
-                  <h6>cach on delivery</h6>
-                  <p>The Internet Tend To Repeat</p>
+                  <h6>Thanh toán tại nhà</h6>
+                  <p>Xem trước khi thanh toán</p>
                 </div>
               </div>
             </div>
@@ -619,8 +678,8 @@
                   <i class="fa fa-undo" aria-hidden="true"></i>
                 </div>
                 <div class="benefit_content">
-                  <h6>45 days return</h6>
-                  <p>Making it Look Like Readable</p>
+                  <h6>7 ngày hoàn trả</h6>
+                  <p>Uy tín, chất lượng</p>
                 </div>
               </div>
             </div>
@@ -630,7 +689,7 @@
                   <i class="fa fa-clock-o" aria-hidden="true"></i>
                 </div>
                 <div class="benefit_content">
-                  <h6>opening all week</h6>
+                  <h6>Mở cửa</h6>
                   <p>8AM - 09PM</p>
                 </div>
               </div>
@@ -641,7 +700,7 @@
 
       <!-- Newsletter -->
 
-      <div class="newsletter">
+      <!-- <div class="newsletter">
         <div class="container">
           <div class="row">
             <div class="col-lg-6">
@@ -680,7 +739,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Footer -->
 
@@ -779,8 +838,16 @@
         const getColorById = `https://localhost:7060/api/Color/findId/`;
         const getProductImagesByDetailId = `https://localhost:7060/api/ProductImage/productDetailId/${productdetailId}`;
 
+        // Thêm đoạn code lấy token
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Không tìm thấy token xác thực");
+          window.location.href = "login.html";
+          return;
+        }
+
         // Gọi API lấy ảnh sản phẩm
-        get(getProductImagesByDetailId, function (imgError, images) {
+        get(getProductImagesByDetailId, token, function (imgError, images) {
           if (imgError || !images || images.length === 0) {
             console.error("Không thể lấy ảnh sản phẩm:", imgError);
             return;
@@ -788,10 +855,15 @@
 
           // Cập nhật ảnh chính
           if (images[0]) {
-            $(".single_product_image_background").css(
-              "background-image",
-              `url(${images[0].url})`
-            );
+            // $(".single_product_image_background").css(
+            //   "background-image",
+            //   `url(${images[0].url})`
+            // );
+            $(".single_product_image_background").css({
+    "background-image": `url("${images[0].url}")`,
+    "background-size": "cover",
+    "background-position": "center"
+  });
           }
 
           // Cập nhật thumbnails
@@ -820,7 +892,7 @@
         });
 
         // Gọi API lấy chi tiết sản phẩm
-        get(getProductDetailById, function (error, productDetail) {
+        get(getProductDetailById, token, function (error, productDetail) {
           if (error) {
             console.error("Có lỗi xảy ra khi gọi API ProductDetail:", error);
             return;
@@ -838,7 +910,7 @@
           const productId = productDetail.productId;
 
           // Gọi API lấy thông tin sản phẩm (tên, mô tả, giá)
-          get(getProductById + productId, function (error, product) {
+          get(getProductById + productId, token, function (error, product) {
             if (error) {
               console.error("Có lỗi xảy ra khi gọi API Product:", error);
               return;
@@ -853,7 +925,7 @@
             const colorId = productDetail.colorId;
 
             // Gọi API lấy màu sắc sản phẩm
-            get(getColorById + colorId, function (error, color) {
+            get(getColorById + colorId, token, function (error, color) {
               if (error) {
                 console.error("Có lỗi xảy ra khi gọi API Color:", error);
                 return;
@@ -870,45 +942,25 @@
                         <div class="product_details">
                             <div class="product_details_title">
                                 <h2>${productDetail.name}</h2>
-                                <p>${
-                                  product.description ||
-                                  "No description available"
-                                }</p>
+                                <p>${product.description || "No description available"}</p>
                             </div>
                             <div class="free_delivery d-flex flex-row align-items-center justify-content-center">
-                                <span class="ti-truck"></span><span>free delivery</span>
+                                <span class="ti-truck"></span><span>Miễn phí vận chuyển</span>
                             </div>
-                            <div class="original_price">$${
-                              product.originalPrice
-                            }</div>
-                            <div class="product_price">$${
-                              productDetail.price
-                            }</div>
-                            <ul class="star_rating">
-                                ${[...Array(5)]
-                                  .map((_, index) =>
-                                    index < product.rating
-                                      ? `<li><i class="fa fa-star"></i></li>`
-                                      : `<li><i class="fa fa-star-o"></i></li>`
-                                  )
-                                  .join("")}
-                            </ul>
-                            <div class="product_color">
-                                <span>Select Color:</span>
-                                <ul>
-                                    <li style="background: ${
-                                      color.hexCode
-                                    };"></li>
-                                </ul>
-                            </div>
+                            
+                            <div class="product_price">${productDetail.price?.toLocaleString("vi-VN")}đ</div>
+                            
+                            
                             <div class="quantity d-flex flex-column flex-sm-row align-items-sm-center">
-                                <span>Quantity:</span>
+                                <span>Số lượng:</span>
                                 <div class="quantity_selector">
                                     <span class="minus"><i class="fa fa-minus"></i></span>
                                     <span id="quantity_value">1</span>
                                     <span class="plus"><i class="fa fa-plus"></i></span>
                                 </div>
-                                <div class="red_button add_to_cart_button"><a href="#">add to cart</a></div>
+                                <div class="red_button add_to_cart_button">
+                                    <a href="#" class="add_to_cart_link">Thêm vào giỏ hàng</a>
+                                </div>
                             </div>
                         </div>
                     `);
@@ -931,5 +983,267 @@
         });
       });
     </script>
+
+<script>
+  $(document).ready(function() {
+      // Hàm cập nhật số lượng giỏ hàng
+      function updateCartCount() {
+          const token = localStorage.getItem('token');
+          const customerId = localStorage.getItem('userId');
+          
+          if (!token || !customerId) return;
+  
+          $.ajax({
+              url: `https://localhost:7060/api/Cart/get-cart/${customerId}`,
+              method: 'GET',
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              },
+              success: function(response) {
+                  const totalItems = response.items.reduce((sum, item) => sum + item.quantity, 0);
+                  $('#checkout_items').text(totalItems);
+              }
+          });
+      }
+  
+      // Xử lý sự kiện click nút "Thêm vào giỏ hàng"
+      $(document).on('click', '.add_to_cart_link', function(e) {
+          e.preventDefault();
+          
+          const token = localStorage.getItem('token');
+          const customerId = localStorage.getItem('userId');
+          
+          if (!token || !customerId) {
+              alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
+              window.location.href = 'login.html';
+              return;
+          }
+  
+          const urlParams = new URLSearchParams(window.location.search);
+          const productDetailId = urlParams.get('id');
+          const quantity = parseInt($('#quantity_value').text());
+  
+          // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+          $.ajax({
+              url: `https://localhost:7060/api/Cart/get-cart/${customerId}`,
+              method: 'GET',
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              },
+              success: function(cartResponse) {
+                  const existingItem = cartResponse.items.find(item => 
+                      item.productDetailId === parseInt(productDetailId)
+                  );
+  
+                  if (existingItem) {
+                      // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+                      const updateData = {
+                          cartDetailId: existingItem.cartDetailId,
+                          quantity: existingItem.quantity + quantity
+                      };
+  
+                      $.ajax({
+                          url: 'https://localhost:7060/api/Cart/update-quantity',
+                          method: 'PUT',
+                          headers: {
+                              'Authorization': `Bearer ${token}`,
+                              'Content-Type': 'application/json'
+                          },
+                          data: JSON.stringify(updateData),
+                          success: function(response) {
+                              alert('Đã cập nhật số lượng trong giỏ hàng!');
+                              updateCartCount();
+                          },
+                          error: function(xhr) {
+                              console.error('Lỗi khi cập nhật số lượng:', xhr);
+                              alert('Không thể cập nhật số lượng. Vui lòng thử lại sau.');
+                          }
+                      });
+                  } else {
+                      // Nếu sản phẩm chưa có trong giỏ hàng, thêm mới
+                      const cartData = {
+                          productDetailId: parseInt(productDetailId),
+                          quantity: quantity,
+                          customerId: parseInt(customerId)
+                      };
+  
+                      $.ajax({
+                          url: 'https://localhost:7060/api/Cart/add-to-cart',
+                          method: 'POST',
+                          headers: {
+                              'Authorization': `Bearer ${token}`,
+                              'Content-Type': 'application/json'
+                          },
+                          data: JSON.stringify(cartData),
+                          success: function(response) {
+                              alert('Thêm vào giỏ hàng thành công!');
+                              updateCartCount();
+                          },
+                          error: function(xhr) {
+                              console.error('Lỗi khi thêm vào giỏ hàng:', xhr);
+                              alert('Không thể thêm vào giỏ hàng. Vui lòng thử lại sau.');
+                          }
+                      });
+                  }
+              },
+              error: function(xhr) {
+                  console.error('Lỗi khi kiểm tra giỏ hàng:', xhr);
+                  if (xhr.status === 401) {
+                      alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                      window.location.href = 'login.html';
+                  } else {
+                      alert('Không thể kiểm tra giỏ hàng. Vui lòng thử lại sau.');
+                  }
+              }
+          });
+      });
+  
+      // Cập nhật số lượng giỏ hàng khi trang được load
+      updateCartCount();
+  });
+  </script>
+  <script>
+    $(document).ready(function () {
+      // Kiểm tra trạng thái đăng nhập
+      function checkLoginStatus() {
+        const token = localStorage.getItem("token");
+        const userRole = localStorage.getItem("userRole");
+        const userName = localStorage.getItem("userName");
+
+        if (token && userRole === "Customer") {
+          // Đã đăng nhập
+          $("#loginSection, #registerSection").hide();
+          $("#userSection, #logoutSection").show();
+          $("#userFullName").text(userName);
+        } else {
+          // Chưa đăng nhập
+          $("#loginSection, #registerSection").show();
+          $("#userSection, #logoutSection").hide();
+        }
+      }
+
+      // Xử lý đăng xuất
+      $("#logoutBtn").click(function (e) {
+        e.preventDefault();
+
+        // Xóa thông tin đăng nhập khỏi localStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("tokenExpiration");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userEmail");
+
+        // Chuyển hướng về trang đăng nhập
+        window.location.href = "login.html";
+      });
+
+      // Kiểm tra trạng thái đăng nhập khi trang được tải
+      checkLoginStatus();
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
+      let searchTimeout;
+      
+      $("#searchInput").on("input", function () {
+        const query = $(this).val();
+        const token = localStorage.getItem("token");
+
+        clearTimeout(searchTimeout);
+
+        if (query.length > 0) {
+          searchTimeout = setTimeout(() => {
+            $.ajax({
+              url: `https://localhost:7060/api/ProductDetail/FindByName/${query}`,
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              },
+              success: function(products) {
+                $("#searchResults").empty();
+                
+                if (products && products.length > 0) {
+                  const processedProducts = new Set();
+
+                  products.forEach(product => {
+                    if (!processedProducts.has(product.id)) {
+                      processedProducts.add(product.id);
+
+                      $.ajax({
+                        url: `https://localhost:7060/api/ProductImage/productDetailId/${product.id}`,
+                        method: 'GET',
+                        headers: {
+                          'Authorization': `Bearer ${token}`
+                        },
+                        success: function(images) {
+                          const imageUrl = images && images.length > 0 
+                            ? images[0].url 
+                            : 'images/product_placeholder.jpg';
+                          
+                          const productHtml = `
+                            <div class="search-item" data-id="${product.id}">
+                              <div class="search-item-content">
+                                <img src="${imageUrl}" alt="${product.name}" class="search-item-image">
+                                <div class="search-item-details">
+                                  <div class="search-item-name">${product.name}</div>
+                                </div>
+                              </div>
+                            </div>
+                          `;
+                          
+                          $("#searchResults").append(productHtml);
+                        },
+                        error: function() {
+                          const productHtml = `
+                            <div class="search-item" data-id="${product.id}">
+                              <div class="search-item-content">
+                                <img src="images/product_placeholder.jpg" alt="${product.name}" class="search-item-image">
+                                <div class="search-item-details">
+                                  <div class="search-item-name">${product.name}</div>
+                                </div>
+                              </div>
+                            </div>
+                          `;
+                          
+                          $("#searchResults").append(productHtml);
+                        }
+                      });
+                    }
+                  });
+                  
+                  $("#searchResults").show();
+                } else {
+                  $("#searchResults").html('<div class="search-item">Không tìm thấy sản phẩm</div>');
+                  $("#searchResults").show();
+                }
+              },
+              error: function(xhr) {
+                console.error("Lỗi khi tìm kiếm:", xhr);
+                $("#searchResults").html('<div class="search-item">Đã xảy ra lỗi khi tìm kiếm</div>');
+                $("#searchResults").show();
+              }
+            });
+          }, 300);
+        } else {
+          $("#searchResults").hide();
+        }
+      });
+
+      $(document).on("click", ".search-item", function () {
+        const productId = $(this).data("id");
+        window.location.href = `single.html?id=${productId}`;
+      });
+
+      // Ẩn kết quả tìm kiếm khi click ra ngoài
+      $(document).on("click", function(e) {
+        if (!$(e.target).closest(".search-container").length) {
+          $("#searchResults").hide();
+        }
+      });
+    });
+  </script>
   </body>
 </html>
+

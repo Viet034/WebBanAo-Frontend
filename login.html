@@ -104,36 +104,7 @@
 
         <!-- Form Đăng ký -->
         <form id="registerForm" style="display: none">
-          <div class="mb-3">
-            <label class="form-label">Loại tài khoản</label>
-            <div class="d-flex gap-3">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="accountType"
-                  id="customerType"
-                  value="customer"
-                  checked
-                />
-                <label class="form-check-label" for="customerType"
-                  >Khách hàng</label
-                >
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="accountType"
-                  id="employeeType"
-                  value="employee"
-                />
-                <label class="form-check-label" for="employeeType"
-                  >Nhân viên</label
-                >
-              </div>
-            </div>
-          </div>
+         
           <div class="mb-3">
             <label class="form-label">Họ và tên</label>
             <input type="text" class="form-control" id="fullName" required />
@@ -198,19 +169,6 @@
             <div class="error-message" id="cityError"></div>
           </div>
 
-          <!-- Trường riêng cho nhân viên -->
-          <div class="mb-3 employee-field" style="display: none">
-            <label class="form-label">Thành phố</label>
-            <input type="text" class="form-control" id="employeeCity" />
-            <div class="error-message" id="employeeCityError"></div>
-          </div>
-          <div class="mb-3 employee-field" style="display: none">
-            <label class="form-label">Vai trò</label>
-            <select class="form-select" id="roleIds">
-              <option value="1">Nhân viên</option>
-            </select>
-          </div>
-
           <button type="submit" class="btn btn-primary w-100 mb-3">
             Đăng ký
           </button>
@@ -221,6 +179,11 @@
             >Chưa có tài khoản? Đăng ký ngay</a
           >
         </div>
+        <div class="text-center mt-3">
+          <a href="forgot-password.html" class="text-decoration-none">
+              Quên mật khẩu?
+          </a>
+      </div>
         <div class="text-center mt-3">
           <a href="index.html" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Quay lại trang chủ
@@ -408,10 +371,8 @@
             return;
           }
 
-          const isCustomer = $("#customerType").is(":checked");
-
-          // Dữ liệu cơ bản cho cả Customer và Employee
-          const baseData = {
+          // Dữ liệu đăng ký cho Customer
+          const registerData = {
             fullName: $("#fullName").val(),
             email: $("#email").val(),
             password: password,
@@ -419,30 +380,9 @@
             dob: $("#dob").val(),
             gender: $("#gender").val(),
             address: $("#address").val(),
+            city: $("#city").val(),
+            userType: "Customer"  // Chỉ định rõ là Customer
           };
-
-          let registerData;
-          let endpoint;
-
-          if (isCustomer) {
-            // Đăng ký Customer
-            registerData = {
-              ...baseData,
-              city: $("#city").val(),
-              userType: "Customer",
-            };
-            endpoint = "https://localhost:7060/api/Auth/register/customer";
-          } else {
-            // Đăng ký Employee/Admin
-            const roleId = $("#roleIds").val();
-            registerData = {
-              ...baseData,
-              city: $("#employeeCity").val(),
-              userType: roleId === "1" ? "Employee" : "Admin",
-              roleIds: [roleId],
-            };
-            endpoint = "https://localhost:7060/api/Auth/register/employee";
-          }
 
           console.log("Dữ liệu đăng ký:", registerData);
 
@@ -455,8 +395,9 @@
               '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...'
             );
 
+          // Gọi API đăng ký customer
           $.ajax({
-            url: endpoint,
+            url: "https://localhost:7060/api/Auth/register/customer",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(registerData),
@@ -496,7 +437,7 @@
             },
             complete: function () {
               submitBtn.prop("disabled", false).text(originalText);
-            },
+            }
           });
         });
       });

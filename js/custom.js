@@ -442,90 +442,55 @@ jQuery(document).ready(function($)
 
     */
 
-    $(document).ready(function() {
-        // Toggle search form
-        $('.fa-search').parent().click(function(e) {
-            e.preventDefault();
-            $('.search-form').toggleClass('active');
-        });
+    $(document).ready(function () {
+        // Show search results when typing
+        $("#searchInput").on("input", function () {
+            const query = $(this).val();
 
-        // Close search form when clicking outside
-        $(document).click(function(e) {
-            if (!$(e.target).closest('.search-container').length) {
-                $('.search-form').removeClass('active');
-            }
-        });
-
-        // Handle search
-        $('#searchForm').submit(function(e) {
-            e.preventDefault();
-            const searchTerm = $('#searchInput').val().toLowerCase();
-            
-            // Gọi API tìm kiếm với searchTerm
-            $.ajax({
-                url: `${API_URL}/api/products/search?keyword=${searchTerm}`,
-                method: 'GET',
-                success: function(response) {
-                    displaySearchResults(response);
-                },
-                error: function(error) {
-                    console.error("Lỗi khi tìm kiếm:", error);
-                    displaySearchResults([]);
-                }
-            });
-        });
-
-        // Hiển thị kết quả tìm kiếm
-        function displaySearchResults(products) {
-            // Xóa kết quả cũ nếu có
-            $('.search-results').remove();
-
-            // Tạo container cho kết quả
-            const resultsContainer = $('<div class="search-results"></div>');
-
-            if (!products || products.length === 0) {
-                resultsContainer.append('<div class="search-result-item">Không tìm thấy sản phẩm</div>');
-            } else {
-                products.forEach(product => {
-                    const productElement = `
-                        <div class="search-result-item" onclick="window.location.href='single.html?id=${product.id}'">
-                            <img src="${product.imageUrl || 'images/product_placeholder.jpg'}" alt="${product.name}">
-                            <div class="product-info">
-                                <div class="product-name">${product.name}</div>
-                                <div class="product-price">${formatPrice(product.price)}</div>
-                            </div>
-                        </div>
-                    `;
-                    resultsContainer.append(productElement);
+            if (query.length > 0) {
+                // Call your API to get search results
+                $.ajax({
+                    url: `https://localhost:7060/api/ProductDetail/FindByName/${query}`,
+                    method: "GET",
+                    success: function (products) {
+                        $("#searchResults").empty(); // Clear previous results
+                        if (products.length > 0) {
+                            products.forEach(product => {
+                                $("#searchResults").append(`
+                                    <div class="search-item" data-id="${product.id}">
+                                        ${product.name} - ${product.price?.toLocaleString("vi-VN")}đ
+                                    </div>
+                                `);
+                            });
+                            $("#searchResults").show(); // Show results
+                        } else {
+                            $("#searchResults").hide(); // Hide if no results
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error fetching search results:", error);
+                    }
                 });
+            } else {
+                $("#searchResults").hide(); // Hide results if input is empty
             }
+        });
 
-            // Thêm kết quả vào form tìm kiếm
-            $('.search-form').append(resultsContainer);
-        }
+        // Handle click on search result
+        $(document).on("click", ".search-item", function () {
+            const productId = $(this).data("id");
+            window.location.href = `single.html?id=${productId}`; // Redirect to product page
+        });
 
-        // Format giá tiền
-        function formatPrice(price) {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(price);
-        }
-
-        // Xử lý tìm kiếm realtime
-        let searchTimeout;
-        $('#searchInput').on('input', function() {
-            clearTimeout(searchTimeout);
-            const searchTerm = $(this).val().toLowerCase();
-            
-            // Đợi người dùng ngừng gõ 300ms mới tìm kiếm
-            searchTimeout = setTimeout(() => {
-                if (searchTerm.length >= 2) {
-                    $('#searchForm').submit();
-                } else {
-                    $('.search-results').remove();
-                }
-            }, 300);
+        // Show search results when clicking the search icon
+        $("#searchIcon").on("click", function (e) {
+            e.preventDefault(); // Prevent default anchor behavior
+            const query = $("#searchInput").val();
+            if (query.length > 0) {
+                $("#searchResults").toggle(); // Toggle visibility of search results
+            } else {
+                $("#searchResults").hide(); // Hide if input is empty
+            }
         });
     });
 

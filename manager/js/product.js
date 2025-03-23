@@ -79,6 +79,75 @@ function initializeCloudinaryWidgets() {
       }
     }
   );
+
+  // Widget cho thêm mới chi tiết sản phẩm
+  const productDetailWidget = cloudinary.createUploadWidget(
+    {
+      cloudName: "dwcih9djc",
+      uploadPreset: "ml_default",
+      sources: ["local", "url", "camera"],
+      multiple: false,
+      clientAllowedFormats: ["jpg", "png", "jpeg", "gif"],
+      cropping: false,
+    },
+    (error, result) => {
+      if (!error && result && result.event === "success") {
+        const imageUrl = result.info.secure_url;
+        const previewContainer = document.getElementById("productDetail-images-preview");
+        previewContainer.innerHTML = ''; // Clear previous preview
+        
+        const img = document.createElement("img");
+        img.src = imageUrl;
+        img.alt = "Preview";
+        img.style.maxHeight = "100px";
+        img.style.margin = "5px";
+        previewContainer.appendChild(img);
+        
+        document.getElementById("productDetailImageUrls").value = imageUrl;
+      }
+    }
+  );
+
+  // Widget cho chỉnh sửa chi tiết sản phẩm
+  const editProductDetailWidget = cloudinary.createUploadWidget(
+    {
+      cloudName: "dwcih9djc",
+      uploadPreset: "ml_default",
+      sources: ["local", "url", "camera"],
+      multiple: false,
+      clientAllowedFormats: ["jpg", "png", "jpeg", "gif"],
+      cropping: false,
+    },
+    (error, result) => {
+      if (!error && result && result.event === "success") {
+        const imageUrl = result.info.secure_url;
+        const previewContainer = document.getElementById("editProductDetail-images-preview");
+        previewContainer.innerHTML = ''; // Clear previous preview
+        
+        const img = document.createElement("img");
+        img.src = imageUrl;
+        img.alt = "Preview";
+        img.style.maxHeight = "100px";
+        img.style.margin = "5px";
+        previewContainer.appendChild(img);
+        
+        document.getElementById("editProductDetailImageUrls").value = imageUrl;
+      }
+    }
+  );
+
+  // Thêm event listeners cho nút upload
+  document.getElementById("productDetail_upload_widget")?.addEventListener(
+    "click",
+    () => productDetailWidget.open(),
+    false
+  );
+
+  document.getElementById("edit_productDetail_upload_widget")?.addEventListener(
+    "click",
+    () => editProductDetailWidget.open(),
+    false
+  );
 }
 
 function initializeEventListeners() {
@@ -89,7 +158,7 @@ function initializeEventListeners() {
       e.preventDefault();
       const productData = {
         name: document.getElementById("productName").value,
-        code: document.getElementById("productCode").value,
+        code: generateProductCode(),
         description: document.getElementById("productDescription").value,
         brandId: document.getElementById("productBrand").value,
         categoryId: document.getElementById("productCategory").value,
@@ -190,11 +259,24 @@ function loadInitialData() {
 
 // Hàm lấy danh sách sản phẩm
 function fetchProducts() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: "https://localhost:7060/api/Product/GetAll",
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
-      console.log("Dữ liệu sản phẩm:", response); // Thêm log để debug
+      console.log("Dữ liệu sản phẩm:", response);
       const tbody = document.querySelector("#products table tbody");
       tbody.innerHTML = "";
 
@@ -259,10 +341,12 @@ function fetchProducts() {
     },
     error: function (xhr, status, error) {
       console.error("Lỗi khi lấy danh sách sản phẩm:", error);
-      console.error("Chi tiết lỗi:", xhr.responseText); // Thêm log chi tiết lỗi
-      alert(
-        "Không thể lấy danh sách sản phẩm. Vui lòng kiểm tra console để biết thêm chi tiết."
-      );
+      if (xhr.status === 401) {
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        window.location.href = "../login.html";
+      } else {
+        alert("Không thể lấy danh sách sản phẩm. Vui lòng thử lại sau.");
+      }
     },
   });
 }
@@ -275,9 +359,22 @@ function searchProducts() {
     return;
   }
 
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: `https://localhost:7060/api/Product/FindByName/${searchTerm}`,
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       const tbody = document.querySelector("#products table tbody");
       tbody.innerHTML = "";
@@ -338,12 +435,14 @@ function searchProducts() {
     },
   });
 }
-
+function generateProductCode() {
+  return 'PRO' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+}
 // Hàm thêm sản phẩm
 function addProduct(productData) {
   const currentDate = new Date().toISOString();
   const data = {
-    code: productData.code,
+    code: generateProductCode(),
     productName: productData.name,
     description: productData.description,
     createDate: currentDate,
@@ -355,6 +454,14 @@ function addProduct(productData) {
     brandId: parseInt(productData.brandId),
   };
 
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   console.log("Dữ liệu gửi đi:", data);
 
   $.ajax({
@@ -362,6 +469,9 @@ function addProduct(productData) {
     method: "POST",
     data: JSON.stringify(data),
     contentType: "application/json",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       alert("Thêm sản phẩm thành công!");
       $("#addProductModal").modal("hide");
@@ -378,9 +488,22 @@ function addProduct(productData) {
 
 // Hàm sửa sản phẩm
 function editProduct(id) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: `https://localhost:7060/api/Product/GetAll`,
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       const product = response.find((p) => p.id === id);
       if (!product) {
@@ -390,8 +513,8 @@ function editProduct(id) {
 
       // Điền dữ liệu vào form sửa
       document.getElementById("editProductId").value = product.id;
-      document.getElementById("editProductName").value =
-        product.productName;
+      document.getElementById("editProductName").value = product.productName;
+        
       document.getElementById("editProductCategory").value = product.code;
       document.getElementById("editProductPrice").value =
         product.description;
@@ -426,6 +549,14 @@ function updateProduct(id, productData) {
     createdBy: "Admin",
   };
 
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   console.log("Dữ liệu cập nhật:", data);
 
   $.ajax({
@@ -433,6 +564,9 @@ function updateProduct(id, productData) {
     method: "PUT",
     data: JSON.stringify(data),
     contentType: "application/json",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       alert("Cập nhật sản phẩm thành công!");
       $("#editProductModal").modal("hide");
@@ -448,10 +582,21 @@ function updateProduct(id, productData) {
 
 // Hàm xóa sản phẩm
 function deleteProduct(id) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
     $.ajax({
       url: `https://localhost:7060/api/Product/DeletePermanent/${id}`,
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         alert("Xóa sản phẩm thành công!");
         fetchProducts(); // Tải lại danh sách
@@ -466,9 +611,20 @@ function deleteProduct(id) {
 
 // Hàm thay đổi trạng thái sản phẩm
 function changeStatus(id, newStatus) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: `https://localhost:7060/api/Product/ChangeSstatus/${id}?newStatus=${newStatus}`,
     method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       alert("Cập nhật trạng thái thành công!");
       fetchProducts(); // Tải lại danh sách
@@ -482,9 +638,22 @@ function changeStatus(id, newStatus) {
 
 // Hàm load danh sách thương hiệu
 function loadBrands() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: "https://localhost:7060/api/Brand/GetAll",
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       console.log("Dữ liệu thương hiệu:", response); // Log để debug
       const brandSelect = document.getElementById("productBrand");
@@ -511,9 +680,22 @@ function loadBrands() {
 
 // Hàm load danh sách danh mục
 function loadCategories() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: "https://localhost:7060/api/Category/GetAll",
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       console.log("Dữ liệu danh mục:", response); // Log để debug
       const categorySelect = document.getElementById("productCategory");
@@ -537,9 +719,22 @@ function loadCategories() {
 
 // Hàm load danh sách màu sắc
 function loadColors() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: "https://localhost:7060/api/Color/GetAll",
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       console.log("Dữ liệu màu sắc:", response);
       const colorSelects = document.querySelectorAll(
@@ -562,9 +757,22 @@ function loadColors() {
 
 // Hàm load danh sách kích cỡ
 function loadSizes() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: "https://localhost:7060/api/Size/GetAll",
     method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       console.log("Dữ liệu kích cỡ:", response);
       const sizeSelects = document.querySelectorAll(
@@ -608,73 +816,70 @@ function showProductDetails(productId, productName) {
     $.ajax({
       url: "https://localhost:7060/api/Size/GetAll",
       method: "GET",
-    }),
+    })
   ])
     .then(([productDetails, colors, sizes]) => {
-      // Lọc chi tiết theo productId
       const filteredDetails = productDetails.filter(
         (detail) => detail.productId === parseInt(productId)
       );
 
-      const tbody = document.getElementById("productDetailsTableBody");
-      tbody.innerHTML = "";
+      // Lấy ảnh cho từng chi tiết sản phẩm
+      const imagePromises = filteredDetails.map(detail =>
+        $.ajax({
+          url: `https://localhost:7060/api/ProductImage/productDetailId/${detail.id}`,
+          method: "GET"
+        }).catch(() => null) // Trả về null nếu không có ảnh
+      );
 
-      if (filteredDetails.length === 0) {
-        tbody.innerHTML = `
-      <tr>
-        <td colspan="8" class="text-center">Không có chi tiết sản phẩm nào</td>
-      </tr>
-    `;
-        return;
-      }
+      Promise.all(imagePromises).then(images => {
+        const tbody = document.getElementById("productDetailsTableBody");
+        tbody.innerHTML = "";
 
-      filteredDetails.forEach((detail, index) => {
-        // Tìm tên màu sắc và kích thước tương ứng
-        const color = colors.find((c) => c.id === detail.colorId);
-        const size = sizes.find((s) => s.id === detail.sizeId);
+        if (filteredDetails.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="10" class="text-center">Không có chi tiết sản phẩm nào</td></tr>`;
+          return;
+        }
 
-        const row = `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${detail.name || ""}</td>
-        <td>${detail.code || ""}</td>
-        <td>${detail.price?.toLocaleString("vi-VN")}đ</td>
-        <td>${size ? size.sizeCode : ""}</td>
-        <td>${color ? color.colorName : ""}</td>
-        <td>
-          <span class="badge ${
-            detail.status === "Available" ? "bg-success" : "bg-danger"
-          }">
-            ${detail.status === "Available" ? "Available" : "OutOfStock"}
-          </span>
-        </td>
-        <td>
-          <button class="btn btn-warning btn-sm" onclick="editProductDetail(${
-            detail.id
-          })">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-danger btn-sm" onclick="deleteProductDetail(${
-            detail.id
-          })">
-            <i class="fas fa-trash"></i>
-          </button>
-          <button class="btn ${
-            detail.status === "Available"
-              ? "btn-danger"
-              : "btn-success"
-          } btn-sm" 
-                  onclick="changeProductDetailStatus(${detail.id}, '${
-          detail.status === "Available" ? "OutOfStock" : "Available"
-        }')">
-            <i class="fas ${
-              detail.status === "Available" ? "fa-times" : "fa-check"
-            }"></i>
-          </button>
-        </td>
-      </tr>
-    `;
-        tbody.innerHTML += row;
+        filteredDetails.forEach((detail, index) => {
+          const color = colors.find((c) => c.id === detail.colorId);
+          const size = sizes.find((s) => s.id === detail.sizeId);
+          const productImage = images[index]?.[0]; // Lấy ảnh đầu tiên nếu có
+
+          const row = `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${detail.name || ""}</td>
+              <td>${detail.code || ""}</td>
+              <td>${detail.price?.toLocaleString("vi-VN")}đ</td>
+              <td>${size ? size.sizeCode : ""}</td>
+              <td>${color ? color.colorName : ""}</td>
+              <td>${detail.quantity || 0}</td>
+              <td>
+                ${productImage ? 
+                  `<img src="${productImage.url}" alt="Product" style="width: 50px; height: 50px; object-fit: cover;">` 
+                  : 'Không có ảnh'}
+              </td>
+              <td>
+                <span class="badge ${detail.status === "Available" ? "bg-success" : "bg-danger"}">
+                  ${detail.status === "Available" ? "Available" : "OutOfStock"}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-warning btn-sm" onclick="editProductDetail(${detail.id})">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteProductDetail(${detail.id})">
+                  <i class="fas fa-trash"></i>
+                </button>
+                <button class="btn ${detail.status === "Available" ? "btn-danger" : "btn-success"} btn-sm" 
+                        onclick="changeProductDetailStatus(${detail.id}, '${detail.status === "Available" ? "OutOfStock" : "Available"}')">
+                  <i class="fas ${detail.status === "Available" ? "fa-times" : "fa-check"}"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
       });
     })
     .catch((error) => {
@@ -721,12 +926,40 @@ function refreshProductDetails() {
 
 // Cập nhật các hàm thêm, sửa, xóa để gọi refreshProductDetails
 function addProductDetail(data) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: "https://localhost:7060/api/ProductDetail/AddProductDetail",
     method: "POST",
     data: JSON.stringify(data),
     contentType: "application/json",
+    headers: { Authorization: `Bearer ${token}` },
     success: function (response) {
+      // Nếu có ảnh, lưu ảnh sau khi thêm chi tiết sản phẩm
+      const imageUrl = document.getElementById("productDetailImageUrls").value;
+      if (imageUrl) {
+        const imageData = {
+          code: generateProductDetailCode() + "_IMG",
+          productDetailId: response.id,
+          status: "Active",
+          url: imageUrl
+        };
+
+        $.ajax({
+          url: "https://localhost:7060/api/ProductImage/AddProductImage",
+          method: "POST",
+          data: JSON.stringify(imageData),
+          contentType: "application/json",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
       alert("Thêm chi tiết sản phẩm thành công!");
       $("#addProductDetailModal").modal("hide");
 
@@ -757,10 +990,21 @@ function addProductDetail(data) {
 }
 
 function deleteProductDetail(id) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   if (confirm("Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?")) {
     $.ajax({
       url: `https://localhost:7060/api/ProductDetail/DeletePermanent/${id}`,
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         alert("Xóa chi tiết sản phẩm thành công!");
         // Refresh data ngay lập tức
@@ -794,10 +1038,21 @@ $("#addProductDetailModal, #editProductDetailModal").on(
 
 // Hàm thay đổi trạng thái chi tiết sản phẩm
 function changeProductDetailStatus(id, newStatus) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: `https://localhost:7060/api/ProductDetail/ChangeStatus/${id}?newStatus=${newStatus}`,
     method: "PUT",
     contentType: "application/json",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       console.log("Phản hồi từ server:", response);
       alert("Thay đổi trạng thái thành công!");
@@ -824,20 +1079,37 @@ function editProductDetail(id) {
 
   // Đợi modal chi tiết ẩn hoàn toàn rồi mới hiện modal edit
   $("#productDetailsModal").on("hidden.bs.modal", function () {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Không tìm thấy token xác thực");
+      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      window.location.href = "../login.html";
+      return;
+    }
+
     Promise.all([
       $.ajax({
         url: "https://localhost:7060/api/Color/GetAll",
         method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
       }),
       $.ajax({
         url: "https://localhost:7060/api/Size/GetAll",
         method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
       }),
       $.ajax({
         url: `https://localhost:7060/api/ProductDetail/GetAll`,
         method: "GET",
-      })
-    ]).then(([colors, sizes, productDetails]) => {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      // Thêm request lấy ảnh
+      $.ajax({
+        url: `https://localhost:7060/api/ProductImage/productDetailId/${id}`,
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => null)
+    ]).then(([colors, sizes, productDetails, images]) => {
       const detail = productDetails.find((d) => d.id === id);
       if (!detail) {
         alert("Không tìm thấy chi tiết sản phẩm!");
@@ -852,6 +1124,23 @@ function editProductDetail(id) {
       document.getElementById("editProductDetailName").value = detail.name || "";
       document.getElementById("editProductDetailCode").value = detail.code || "";
       document.getElementById("editPrice").value = detail.price || 0;
+      document.getElementById("editQuantity").value = detail.quantity || 0;
+
+      // Hiển thị ảnh preview nếu có
+      const previewContainer = document.getElementById("editProductDetail-images-preview");
+      previewContainer.innerHTML = '';
+      const currentImage = images?.[0];
+      if (currentImage) {
+        const img = document.createElement("img");
+        img.src = currentImage.url;
+        img.alt = "Preview";
+        img.style.maxHeight = "100px";
+        img.style.margin = "5px";
+        previewContainer.appendChild(img);
+        document.getElementById("editProductDetailImageUrls").value = currentImage.url;
+        // Lưu imageId để update
+        document.getElementById("editProductDetailImageId").value = currentImage.id;
+      }
 
       // Điền dữ liệu cho combobox màu sắc
       const colorSelect = document.getElementById("editColorId");
@@ -895,8 +1184,10 @@ document.addEventListener("DOMContentLoaded", function() {
         name: document.getElementById("productDetailName").value,
         code: generateProductDetailCode(),
         price: parseFloat(document.getElementById("price").value),
+        quantity: parseInt(document.getElementById("quantity").value),
         sizeId: parseInt(document.getElementById("sizeId").value),
         colorId: parseInt(document.getElementById("colorId").value),
+        imageUrls: document.getElementById("productDetailImageUrls").value,
         status: "Available",
         createDate: new Date().toISOString(),
         updateDate: new Date().toISOString(),
@@ -944,23 +1235,77 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Thêm hàm cập nhật chi tiết sản phẩm
 function updateProductDetail(data) {
+  
+  const formData = {
+    ...data,
+    quantity: parseInt(document.getElementById("editQuantity").value),
+    imageUrls: document.getElementById("editProductDetailImageUrls").value
+  };
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("Không tìm thấy token xác thực");
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "../login.html";
+    return;
+  }
+
   $.ajax({
     url: `https://localhost:7060/api/ProductDetail/Update/${data.id}`,
     method: "PUT",
-    data: JSON.stringify(data),
+    data: JSON.stringify(formData),
     contentType: "application/json",
+    headers: { Authorization: `Bearer ${token}` },
     success: function(response) {
+      // Cập nhật ảnh nếu có
+      const imageUrl = document.getElementById("editProductDetailImageUrls").value;
+      const imageId = document.getElementById("editProductDetailImageId").value;
+      
+      if (imageUrl) {
+        if (imageId) {
+          // Nếu có imageId -> update ảnh cũ
+          const imageData = {
+            id: parseInt(imageId),
+            code: data.code + "_IMG",
+            productDetailId: data.id,
+            status: "Active",
+            url: imageUrl
+          };
+
+          $.ajax({
+            url: `https://localhost:7060/api/ProductImage/Update/${imageId}`,
+            method: "PUT",
+            data: JSON.stringify(imageData),
+            contentType: "application/json",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } else {
+          // Nếu không có imageId -> thêm ảnh mới
+          const imageData = {
+            code: data.code + "_IMG",
+            productDetailId: data.id,
+            status: "Active",
+            url: imageUrl
+          };
+
+          $.ajax({
+            url: "https://localhost:7060/api/ProductImage/AddProductImage",
+            method: "POST",
+            data: JSON.stringify(imageData),
+            contentType: "application/json",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        }
+      }
+
       alert("Cập nhật chi tiết sản phẩm thành công!");
       $("#editProductDetailModal").modal("hide");
       
-      // Đợi modal sửa ẩn hoàn toàn
       $("#editProductDetailModal").on("hidden.bs.modal", function() {
-        // Hiện lại modal chi tiết và refresh data
         const productId = $("#productDetailsModal").data("productId");
         const productName = document.getElementById("productDetailsModalTitle").textContent.split(": ")[1];
         $("#productDetailsModal").modal("show");
         showProductDetails(productId, productName);
-        // Xóa event listener
         $(this).off("hidden.bs.modal");
       });
     },
@@ -974,7 +1319,7 @@ function updateProductDetail(data) {
 
 // Hàm tạo mã chi tiết sản phẩm tự động
 function generateProductDetailCode() {
-  return 'PD' + Date.now().toString().slice(-6);
+  return 'PRD' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
 }
 
 // Tải danh sách sản phẩm khi trang được load

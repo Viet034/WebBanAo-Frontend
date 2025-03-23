@@ -103,6 +103,7 @@
                   <th>Tên sản phẩm</th>
                   <th>Mã sản phẩm</th>
                   <th>Mô tả</th>
+
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
@@ -157,6 +158,7 @@
                   <th>Giá</th>
                   <th>Kích thước</th>
                   <th>Màu sắc</th>
+
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
@@ -198,7 +200,7 @@
                   required
                 />
               </div>
-              <div class="mb-3">
+              <!-- <div class="mb-3">
                 <label for="productCode" class="form-label">Mã sản phẩm</label>
                 <input
                   type="text"
@@ -207,7 +209,7 @@
                   name="productCode"
                   required
                 />
-              </div>
+              </div> -->
               <div class="mb-3">
                 <label for="productDescription" class="form-label">Mô tả</label>
                 <input
@@ -289,6 +291,7 @@
           <div class="modal-body">
             <form id="editProductForm">
               <input type="hidden" id="editProductId" />
+              <input type="hidden" id="editProductCategory" />
               <div class="mb-3">
                 <label for="editProductName" class="form-label"
                   >Tên sản phẩm</label
@@ -300,7 +303,7 @@
                   required
                 />
               </div>
-              <div class="mb-3">
+              <!-- <div class="mb-3">
                 <label for="editProductCategory" class="form-label"
                   >Mã sản phẩm</label
                 >
@@ -310,7 +313,7 @@
                   id="editProductCategory"
                   required
                 />
-              </div>
+              </div> -->
               <div class="mb-3">
                 <label for="editProductPrice" class="form-label">Mô tả</label>
                 <input
@@ -365,13 +368,13 @@
           <div class="modal-body">
             <form id="addProductDetailForm">
               <div class="mb-3">
-                <label for="productName" class="form-label">Sản phẩm</label>
+                <!-- <label for="productName" class="form-label">Sản phẩm</label>
                 <input
                   type="text"
                   class="form-control"
                   id="productName"
                   disabled
-                />
+                /> -->
                 <input type="hidden" id="productId" />
               </div>
               <div class="mb-3">
@@ -387,7 +390,13 @@
               </div>
               <div class="mb-3">
                 <label for="price" class="form-label">Giá</label>
-                <input type="number" class="form-control" id="price" required />
+                <input
+                  type="number"
+                  class="form-control"
+                  id="price"
+                  required
+                  min="1"
+                />
               </div>
               <div class="mb-3">
                 <label for="colorId" class="form-label">Màu sắc</label>
@@ -400,6 +409,16 @@
                 <select class="form-control" id="sizeId" required>
                   <!-- Options for sizes will be dynamically loaded here -->
                 </select>
+              </div>
+              <div class="mb-3">
+                <label for="quantity" class="form-label">Số lượng</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="quantity"
+                  required
+                  min="1"
+                />
               </div>
               <div class="mb-3">
                 <label class="form-label">Hình ảnh sản phẩm</label>
@@ -480,6 +499,7 @@
                   class="form-control"
                   id="editPrice"
                   required
+                  min="1"
                 />
               </div>
               <div class="mb-3">
@@ -493,6 +513,16 @@
                 <select class="form-control" id="editSizeId" required>
                   <!-- Options for sizes will be dynamically loaded here -->
                 </select>
+              </div>
+              <div class="mb-3">
+                <label for="editQuantity" class="form-label">Số lượng</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editQuantity"
+                  required
+                  min="1"
+                />
               </div>
               <div class="mb-3">
                 <label class="form-label">Hình ảnh sản phẩm</label>
@@ -513,6 +543,7 @@
                 </div>
                 <input type="hidden" id="editProductDetailImageUrls" />
               </div>
+              <input type="hidden" id="editProductDetailImageId" />
               <button type="submit" class="btn btn-primary">Cập nhật</button>
             </form>
           </div>
@@ -553,6 +584,8 @@
                     <th>Giá</th>
                     <th>Size</th>
                     <th>Màu</th>
+                    <th>Số lượng</th>
+                    <th>Hình ảnh</th>
                     <th>Trạng thái</th>
                     <th>Thao tác</th>
                   </tr>

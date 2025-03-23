@@ -232,7 +232,8 @@
         border-bottom: 2px solid #dee2e6;
       }
 
-      .table td, .table th {
+      .table td,
+      .table th {
         padding: 1rem;
         vertical-align: middle;
       }
@@ -249,25 +250,25 @@
         .table-responsive {
           border: 0;
         }
-        
+
         .table thead {
           display: none;
         }
-        
+
         .table tr {
           margin-bottom: 1rem;
           display: block;
           border: 1px solid #dee2e6;
           border-radius: 8px;
         }
-        
+
         .table td {
           display: block;
           text-align: right;
           padding: 0.5rem 1rem;
           border: none;
         }
-        
+
         .table td::before {
           content: attr(data-label);
           float: left;
@@ -291,6 +292,9 @@
           </a>
           <a href="index.html" class="nav-link">
             <i class="fas fa-home"></i> Quay lại trang chủ
+          </a>
+          <a href="change-password.html" class="nav-link">
+            <i class="fas fa-home"></i> Đổi mật khẩu
           </a>
           <button
             onclick="logout()"
@@ -697,23 +701,35 @@
         vouchers.forEach((voucherData) => {
           // Kiểm tra xem voucher có nằm trong property voucher không
           const voucher = voucherData.voucher || voucherData;
-          console.log("Voucher data in loop:", voucher); // Log để kiểm tra dữ liệu
-          const card = createVoucherCard(voucher, false);
+          console.log("Voucher data in loop:", voucher);
+          
+          // Xác định trạng thái thực tế của voucher
+          let status = voucherData.status || "Active";
+          
+          // Kiểm tra nếu voucher đã hết hạn
+          const endDate = new Date(voucher.endDate);
+          const now = new Date();
+          if (endDate < now) {
+            status = "Expired";
+          }
+          
+          // Tạo card với trạng thái đúng
+          const card = createVoucherCard(voucher, false, status);
           container.appendChild(card);
         });
       }
 
-      // Hàm tạo card voucher
-      function createVoucherCard(voucher, isAvailable) {
+      // Hàm tạo card voucher với trạng thái
+      function createVoucherCard(voucher, isAvailable, status = "Active") {
         const div = document.createElement("div");
         div.className = "col-md-6 col-lg-4";
 
-        const statusClass =
-          {
-            Active: "bg-success",
-            Expired: "bg-danger",
-            Used: "bg-warning",
-          }[voucher.status] || "bg-secondary";
+        const statusClass = {
+          "Active": "bg-success",
+          "Expired": "bg-danger",
+          "Used": "bg-warning",
+          "Inactive": "bg-secondary"
+        }[status] || "bg-secondary";
 
         // Lấy thông tin từ voucher object
         const discountValue = voucher.voucher
@@ -731,9 +747,7 @@
 
         div.innerHTML = `
           <div class="voucher-card">
-            <span class="badge ${statusClass} status">${
-          voucher.status || "Không xác định"
-        }</span>
+            <span class="badge ${statusClass} status">${status || "Không xác định"}</span>
             <div class="discount">Giảm ${discountValue}%</div>
             <div class="validity">
               HSD: ${new Date(endDate).toLocaleDateString()}
@@ -745,11 +759,15 @@
             ${
               isAvailable
                 ? `<button class="btn btn-primary btn-sm mt-2 w-100" onclick="getVoucher(${voucher.id})">
-                <i class="fas fa-plus"></i> Lấy voucher
-              </button>`
-                : `<button class="btn btn-success btn-sm mt-2 w-100" onclick="useVoucher(${voucher.id})">
-                <i class="fas fa-check"></i> Sử dụng ngay
-              </button>`
+                    <i class="fas fa-plus"></i> Lấy voucher
+                  </button>`
+                : status === "Active"
+                  ? `<button class="btn btn-success btn-sm mt-2 w-100" onclick="useVoucher(${voucher.id})">
+                      <i class="fas fa-check"></i> Sử dụng ngay
+                    </button>`
+                  : `<button class="btn btn-secondary btn-sm mt-2 w-100" disabled>
+                      <i class="fas fa-ban"></i> ${status === "Used" ? "Đã sử dụng" : "Hết hạn"}
+                    </button>`
             }
           </div>
         `;
@@ -763,7 +781,7 @@
         const token = localStorage.getItem("token");
 
         $.ajax({
-          url: `https://localhost:7060/api/CustomerVoucher/add`,
+          url: `https://localhost:7060/api/CustomerVoucher/assign`,
           type: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -796,22 +814,73 @@
       // Hàm hiển thị modal voucher có thể lấy
       function showAvailableVouchers() {
         const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
 
+        // Lấy danh sách voucher đã sở hữu trước
         $.ajax({
-          url: "https://localhost:7060/api/Voucher/GetAll",
+          url: `https://localhost:7060/api/CustomerVoucher/customer/${userId}`,
           type: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          success: function (response) {
-            console.log("Available vouchers:", response);
-            renderAvailableVouchers(response);
-            $("#availableVouchersModal").modal("show");
+          success: function(ownedVouchers) {
+            // Lấy ID của các voucher đã sở hữu
+            const ownedVoucherIds = ownedVouchers.map(v => 
+              v.voucherId || (v.voucher ? v.voucher.id : null)
+            ).filter(id => id !== null);
+            
+            // Lấy tất cả voucher
+            $.ajax({
+              url: "https://localhost:7060/api/Voucher/GetAll",
+              type: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              success: function (response) {
+                console.log("Available vouchers:", response);
+                
+                // Lọc voucher khả dụng (active và chưa sở hữu)
+                const availableVouchers = response.filter(v => 
+                  v.status === "Active" && 
+                  !ownedVoucherIds.includes(v.id) &&
+                  new Date(v.endDate) > new Date() // Chưa hết hạn
+                );
+                
+                renderAvailableVouchers(availableVouchers);
+                $("#availableVouchersModal").modal("show");
+              },
+              error: function (xhr) {
+                console.error("Lỗi khi lấy danh sách voucher khả dụng:", xhr);
+                alert("Không thể lấy danh sách voucher khả dụng!");
+              }
+            });
           },
-          error: function (xhr) {
-            console.error("Lỗi khi lấy danh sách voucher khả dụng:", xhr);
-            alert("Không thể lấy danh sách voucher khả dụng!");
-          },
+          error: function(xhr) {
+            // Nếu chưa có voucher nào, lấy tất cả voucher active
+            $.ajax({
+              url: "https://localhost:7060/api/Voucher/GetAll",
+              type: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              success: function (response) {
+                console.log("Available vouchers:", response);
+                
+                // Lọc voucher khả dụng (active và chưa hết hạn)
+                const availableVouchers = response.filter(v => 
+                  v.status === "Active" && 
+                  new Date(v.endDate) > new Date()
+                );
+                
+                renderAvailableVouchers(availableVouchers);
+                $("#availableVouchersModal").modal("show");
+              },
+              error: function (xhr) {
+                console.error("Lỗi khi lấy danh sách voucher khả dụng:", xhr);
+                alert("Không thể lấy danh sách voucher khả dụng!");
+              }
+            });
+          }
         });
       }
 
@@ -834,24 +903,10 @@
         // Thêm log để kiểm tra dữ liệu voucher
         console.log("Vouchers data:", vouchers);
 
-        // Chỉ hiển thị voucher có trạng thái Active
-        const activeVouchers = vouchers.filter((v) => v.status === "Active");
-
-        if (activeVouchers.length === 0) {
-          container.innerHTML = `
-            <div class="col-12">
-              <div class="alert alert-info">
-                Hiện tại không có voucher nào có thể sử dụng.
-              </div>
-            </div>
-          `;
-          return;
-        }
-
-        activeVouchers.forEach((voucher) => {
+        vouchers.forEach((voucher) => {
           // Thêm log để kiểm tra từng voucher
           console.log("Processing voucher:", voucher);
-          const card = createVoucherCard(voucher, true);
+          const card = createVoucherCard(voucher, true, voucher.status);
           container.appendChild(card);
         });
       }
@@ -869,10 +924,20 @@
             const tableBody = $("#orderTableBody");
             tableBody.empty();
 
-            orders.forEach(order => {
+            
+            
+
+            orders.forEach((order) => {
               const statusClass = getStatusClass(order.status);
               const statusText = getStatusText(order.status);
-              
+
+              // Thêm nút hủy đơn nếu trạng thái là Pending hoặc Confirmed
+              const cancelButton = (order.status === 'Pending' || order.status === 'Confirmed') 
+                ? `<button class="btn btn-sm btn-danger ms-2" onclick="cancelOrder('${order.id}')">
+                    <i class="fas fa-times"></i> Hủy đơn
+                   </button>`
+                : '';
+
               tableBody.append(`
                 <tr>
                   <td>${order.code}</td>
@@ -880,6 +945,7 @@
                   <td>${order.totalAmount.toLocaleString()}đ</td>
                   <td>
                     <span class="badge ${statusClass}">${statusText}</span>
+                    ${cancelButton}
                   </td>
                   <td>
                     <button class="btn btn-sm btn-info" onclick="showOrderDetail('${order.id}')">
@@ -899,36 +965,238 @@
                 </td>
               </tr>
             `);
-          }
+          },
         });
       }
 
       // Hàm lấy class cho trạng thái
       function getStatusClass(status) {
         const statusClasses = {
-          'Pending': 'bg-warning',
-          'Processing': 'bg-info',
-          'Completed': 'bg-success',
-          'Cancelled': 'bg-danger'
+          Pending: "bg-warning",
+          Processing: "bg-info",
+          Completed: "bg-success",
+          Cancelled: "bg-danger",
         };
-        return statusClasses[status] || 'bg-secondary';
+        return statusClasses[status] || "bg-secondary";
       }
 
       // Hàm lấy text tiếng Việt cho trạng thái
       function getStatusText(status) {
         const statusTexts = {
-          'Pending': 'Chờ xử lý',
-          'Processing': 'Đang xử lý',
-          'Completed': 'Hoàn thành',
-          'Cancelled': 'Đã hủy'
+          Pending: "Chờ xử lý",
+          Processing: "Đang xử lý",
+          Completed: "Hoàn thành",
+          Cancelled: "Đã hủy",
         };
         return statusTexts[status] || status;
       }
 
       // Hàm hiển thị chi tiết đơn hàng
       function showOrderDetail(orderId) {
-        // Thêm code hiển thị modal chi tiết đơn hàng ở đây
-        // Có thể gọi API khác để lấy chi tiết đơn hàng nếu cần
+        const token = localStorage.getItem("token");
+        $.ajax({
+          url: `https://localhost:7060/api/Order/findId/${orderId}`,
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          success: function(order) {
+            $.ajax({
+              url: `https://localhost:7060/api/Customer/findId/${order.customerId}`,
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              success: function(customer) {
+                // Tạo modal nếu chưa có
+                if (!document.getElementById('orderDetailsModal')) {
+                  const modalHTML = `
+                    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Chi tiết đơn hàng</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div id="orderInfo"></div>
+                            <div class="table-responsive mt-3">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>STT</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                    <th>Trạng thái</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="orderDetailsTableBody"></tbody>
+                              </table>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                  document.body.insertAdjacentHTML('beforeend', modalHTML);
+                }
+
+                // Lưu orderId vào modal để sử dụng sau này
+                $("#orderDetailsModal").data("orderId", orderId);
+
+                // Hiển thị thông tin đơn hàng
+                document.getElementById("orderInfo").innerHTML = `
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <h5>Thông tin đơn hàng</h5>
+                      <p><strong>Mã đơn hàng:</strong> ${order.code}</p>
+                      <p><strong>Ngày đặt:</strong> ${new Date(order.orderDate).toLocaleDateString("vi-VN")}</p>
+                      <p><strong>Trạng thái:</strong> <span class="badge ${getStatusClass(order.status)}">${getStatusText(order.status)}</span></p>
+                      <p><strong>Tổng tiền:</strong> ${order.totalAmount?.toLocaleString("vi-VN")}đ</p>
+                    </div>
+                    <div class="col-md-6">
+                      <h5>Thông tin khách hàng</h5>
+                      <p><strong>Tên khách hàng:</strong> ${customer.fullName || 'N/A'}</p>
+                      <p><strong>Số điện thoại:</strong> ${customer.phone || 'N/A'}</p>
+                      <p><strong>Địa chỉ:</strong> ${customer.address || 'N/A'}</p>
+                    </div>
+                  </div>
+                `;
+
+                // Lấy chi tiết đơn hàng và thông tin sản phẩm
+                loadOrderDetails(orderId);
+              },
+              error: function(xhr, status, error) {
+                console.error("Lỗi khi lấy thông tin khách hàng:", error);
+              }
+            });
+          },
+          error: function(xhr, status, error) {
+            console.error("Lỗi khi lấy thông tin đơn hàng:", error);
+          }
+        });
+      }
+
+      // Hàm load chi tiết đơn hàng
+      function loadOrderDetails(orderId) {
+        const token = localStorage.getItem("token");
+        $.ajax({
+          url: "https://localhost:7060/api/OrderDetail/GetAll",
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          success: function(allDetails) {
+            console.log("Tất cả chi tiết đơn hàng:", allDetails);
+            
+            // Lọc chi tiết đơn hàng theo orderId
+            // Sử dụng == thay vì === để so sánh lỏng lẻo hơn (vì có thể orderId là string trong một trường hợp và number trong trường hợp khác)
+            const orderDetails = allDetails.filter(detail => detail.orderId == orderId);
+            console.log("Chi tiết đơn hàng đã lọc:", orderDetails);
+            
+            if (!orderDetails || orderDetails.length === 0) {
+              document.getElementById("orderDetailsTableBody").innerHTML = `
+                <tr>
+                  <td colspan="6" class="text-center">Không có sản phẩm nào</td>
+                </tr>
+              `;
+              $("#orderDetailsModal").modal("show");
+              return;
+            }
+            
+            const productPromises = orderDetails.map(detail =>
+              $.ajax({
+                url: `https://localhost:7060/api/ProductDetail/findId/${detail.productDetailId}`,
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
+            );
+
+            Promise.all(productPromises)
+              .then(products => {
+                console.log("Thông tin sản phẩm:", products);
+                renderOrderDetails(orderDetails, products);
+                $("#orderDetailsModal").modal("show");
+              })
+              .catch(error => {
+                console.error("Lỗi khi lấy thông tin sản phẩm:", error);
+                $("#orderDetailsModal").modal("show");
+              });
+          },
+          error: function(xhr, status, error) {
+            console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
+            document.getElementById("orderDetailsTableBody").innerHTML = `
+              <tr>
+                <td colspan="6" class="text-center">Không thể tải chi tiết đơn hàng</td>
+              </tr>
+            `;
+            $("#orderDetailsModal").modal("show");
+          }
+        });
+      }
+
+      // Hàm render chi tiết đơn hàng
+      function renderOrderDetails(details, products) {
+        const tbody = document.getElementById("orderDetailsTableBody");
+        tbody.innerHTML = "";
+
+        if (!details || details.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center">Không có sản phẩm nào</td>
+            </tr>
+          `;
+          return;
+        }
+
+        details.forEach((detail, index) => {
+          const product = products.find(p => p.id === detail.productDetailId);
+          const row = `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${product?.name || "N/A"}</td>
+              <td>${detail.quantity}</td>
+              <td>${product?.price?.toLocaleString("vi-VN") || "N/A"}đ</td>
+              <td>${(product?.price * detail.quantity)?.toLocaleString("vi-VN") || "N/A"}đ</td>
+              <td>
+                <span class="badge ${getStatusClass(detail.status)}">${getStatusText(detail.status)}</span>
+              </td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+      }
+
+      // Thêm hàm hủy đơn hàng
+      function cancelOrder(orderId) {
+        if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+          $.ajax({
+            url: `https://localhost:7060/api/Order/ChangeSstatus/${orderId}?newStatus=Cancelled`,
+            type: 'PUT',
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token")
+            },
+            success: function(response) {
+              alert('Hủy đơn hàng thành công!');
+              loadOrders(); // Tải lại danh sách đơn hàng
+            },
+            error: function(xhr) {
+              console.error("Lỗi khi hủy đơn hàng:", xhr);
+              if (xhr.status === 403) {
+                alert('Bạn chỉ có thể hủy đơn hàng ở trạng thái chờ xác nhận hoặc đã xác nhận.');
+              } else {
+                alert('Không thể hủy đơn hàng. Vui lòng thử lại sau!');
+              }
+            }
+          });
+        }
       }
     </script>
   </body>
